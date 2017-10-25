@@ -17,10 +17,10 @@ namespace antevolo {
         size_t component_id_;
 
     public:
-        CDR3HammingGraphInfo(GraphComponentMap& graph_component_map,
-                             const UniqueCDR3IndexMap& cdr3_to_indices_vector_map,
-                             const CDR3ToIndexMap& cdr3_to_old_index_map,
-                             const std::vector<std::string>& unique_cdr3s,
+        CDR3HammingGraphInfo(GraphComponentMap &graph_component_map,
+                             const UniqueCDR3IndexMap &cdr3_to_indices_vector_map,
+                             const CDR3ToIndexMap &cdr3_to_old_index_map,
+                             const std::vector<std::string> &unique_cdr3s,
                              SparseGraphPtr hg_component,
                              size_t component_id) :
             graph_component_map_(graph_component_map),
@@ -33,6 +33,7 @@ namespace antevolo {
         size_t GetOldIndexByNewIndex(size_t i);
         size_t GetNewIndexByOldIndex(size_t old_index);
         const std::vector<size_t>& GetClonesByCDR3(std::string cdr3);
+        size_t GetOldIndexByCDR3JNucl(std::string cdr3JNucl);
         const std::string& GetCDR3ByOldIndex(size_t old_index);
         size_t GetOldIndexByCDR3(const std::string& cdr3);
         const std::vector<size_t>& GetClonesByOldIndex(size_t old_index);
