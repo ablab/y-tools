@@ -40,6 +40,47 @@ namespace antevolo {
             clone_set[*it] = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, j_gene);
         }
     }
+    void VJClassProcessor::ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info) {
+        auto& clone_set = *clone_set_ptr_;
+        auto vertices = hamming_graph_info.GetAllClones();
+        auto v_gene = clone_set[*vertices.begin()].VGene();
+        // get most frequent J gene
+        std::map<germline_utils::ImmuneGene, int> freq_map;
+        germline_utils::ImmuneGene V;
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            auto it_find = freq_map.find(clone_set[*it].JGene());
+            if (it_find == freq_map.end()) {
+                freq_map.insert({clone_set[*it].JGene(), 0});
+            }
+            freq_map[clone_set[*it].JGene()]++;
+            V = clone_set[*it].VGene();
+        }
+        germline_utils::ImmuneGene max_j_gene = std::max_element(
+                std::begin(freq_map),
+                std::end(freq_map),
+                [](const std::pair<germline_utils::ImmuneGene, int> &p1,
+                   const std::pair<germline_utils::ImmuneGene, int> &p2) {
+                    return p1.second < p2.second;
+                })->first;
+
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+//            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+//                continue;
+//            }
+
+            auto& clone = clone_set[*it];
+            std::string cdr3Jnucl = core::dna5String_to_string(clone.CDR3()) +
+                                    core::dna5String_to_string(clone.GetJNucleotides());
+            VERIFY(cdr3Jnucl_to_old_index_map_.find(cdr3Jnucl) != cdr3Jnucl_to_old_index_map_.end());
+            auto read = const_cast<core::Read&>(clone_set[*it].Read());
+            auto new_clone = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, max_j_gene);
+            clone_set[*it] = new_clone;
+            std::string new_cdr3Jnucl = core::dna5String_to_string(new_clone.CDR3()) +
+                                        core::dna5String_to_string(new_clone.GetJNucleotides());
+            cdr3Jnucl_to_old_index_map_.insert({new_cdr3Jnucl, cdr3Jnucl_to_old_index_map_[cdr3Jnucl]});
+            VERIFY(cdr3Jnucl_to_old_index_map_.find(new_cdr3Jnucl) != cdr3Jnucl_to_old_index_map_.end());
+        }
+    }
 
 
     void VJClassProcessor::CreateUniqueCDR3JNucleotidesMap(core::DecompositionClass decomposition_class) {
@@ -160,8 +201,9 @@ namespace antevolo {
         used[v] = true;
         components_helper.push_back(v);
         for (size_t i = 0; i < unique_cdr3Jnucl.size(); ++i) {
-            if (!used[i] && CDR3JNucleotidesDistance(unique_cdr3Jnucl[v], unique_cdr3Jnucl[i]) < tau)
+            if (!used[i] && CDR3JNucleotidesDistance(unique_cdr3Jnucl[v], unique_cdr3Jnucl[i]) < tau) {
                 dfs(i, used, components_helper, unique_cdr3Jnucl, tau);
+            }
         }
     }
 
@@ -202,7 +244,7 @@ namespace antevolo {
 
     void VJClassProcessor::ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id) {
 
-//        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+//        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
 //                                                unique_cdr3sJnucl_map_,
 //                                                cdr3Jnucl_to_old_index_map_,
 //                                                unique_cdr3Jnucleotides_,
@@ -226,12 +268,13 @@ namespace antevolo {
             size_t component_id,
             const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
 
-        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3sJnucl_map_,
                                                 cdr3Jnucl_to_old_index_map_,
                                                 unique_cdr3Jnucleotides_,
                                                 hg_component,
                                                 component_id);
+        ChangeJgeneToMax(hamming_graph_info);
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
                 new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
@@ -248,7 +291,7 @@ namespace antevolo {
 
     void VJClassProcessor::HG_components(SparseGraphPtr hg_component, size_t component_id,
                                          const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
-        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3sJnucl_map_,
                                                 cdr3Jnucl_to_old_index_map_,
                                                 unique_cdr3Jnucleotides_,
@@ -280,7 +323,7 @@ namespace antevolo {
 
     int VJClassProcessor::VJgenes(SparseGraphPtr hg_component, size_t component_id,
                                          const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
-        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3sJnucl_map_,
                                                 cdr3Jnucl_to_old_index_map_,
                                                 unique_cdr3Jnucleotides_,

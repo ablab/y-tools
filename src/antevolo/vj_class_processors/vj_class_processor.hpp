@@ -19,7 +19,8 @@ namespace antevolo {
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
         UniqueCDR3JNuclIndexMap unique_cdr3sJnucl_map_, unique_cdr3s_map_;
-        CDR3ToIndexMap cdr3Jnucl_to_old_index_map_, cdr3_to_old_index_map_;
+        CDR3ToIndexMap cdr3Jnucl_to_old_index_map_;
+        CDR3ToIndexMap cdr3_to_old_index_map_;
         std::vector<std::string> unique_cdr3Jnucleotides_, unique_cdr3_;
 
         SparseGraphPtr sparse_cdr_graph_;
@@ -43,8 +44,10 @@ namespace antevolo {
 
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
 
-        void ChangeJgene(core::DecompositionClass decomposition_class, const germline_utils::ImmuneGene &v_gene,
+        void ChangeJgene(core::DecompositionClass decomposition_class,
+                         const germline_utils::ImmuneGene &v_gene,
                          const germline_utils::ImmuneGene &j_gene);
+        void ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info);
 
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
 

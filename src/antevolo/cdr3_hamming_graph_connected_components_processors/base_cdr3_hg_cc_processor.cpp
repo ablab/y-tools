@@ -7,7 +7,7 @@ namespace antevolo {
               CloneSetWithFakesPtr clone_set_ptr,
               const AntEvoloConfig::AlgorithmParams &config,
               const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-              CDR3HammingGraphInfo& hamming_graph_info,
+              CDR3HammingGraphComponentInfo& hamming_graph_info,
               size_t current_fake_clone_index) :
             clone_set_ptr_(clone_set_ptr),
             config_(config),
@@ -146,9 +146,10 @@ namespace antevolo {
         boost::unordered_map<size_t, EvolutionaryEdgePtr> best_reverse_edges;
 //        INFO("start refinement");
         for (size_t clone_num : vertices_nums) {
-            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[clone_num]);
-            while (it.HasNext()) {
-                size_t src_num = it.Next();
+//            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[clone_num]);
+//            while (it.HasNext()) {
+//                size_t src_num = it.Next();
+            for (size_t src_num : vertices_nums) {
                 VERIFY(vertices_nums.find(src_num) != vertices_nums.end());
                 if (src_num == clone_num) {
                     continue;
@@ -158,6 +159,10 @@ namespace antevolo {
                         clone_set[clone_num],
                         src_num,
                         clone_num);
+                if (edge->CDR3Distance() > config_.similar_cdr3s_params.num_mismatches +
+                                           config_.similar_cdr3s_params.num_indels) {
+                    continue;
+                }
                 if (edge->IsIntersected()) {
                     if ((best_intersected_edges.find(clone_num) == best_intersected_edges.end() ||
                          edge->Length() < best_intersected_edges[clone_num]->Length()) &&

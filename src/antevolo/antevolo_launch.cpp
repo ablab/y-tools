@@ -193,7 +193,7 @@ namespace antevolo {
         output_writer.OutputCleanedSequences(final_clone_set);
         INFO("Cleaned sequences were written to " << config_.output_params.output_dir << "/cleaned_sequences.fa");
 
-        //for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
+//        for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
         for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
             output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
@@ -202,7 +202,7 @@ namespace antevolo {
         output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
 
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
-    };
+    }
 
     void AntEvoloLaunch::AnalyzeParallelEvolution(const EvolutionaryTreeStorage& trees) {
         if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
