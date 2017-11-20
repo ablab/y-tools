@@ -158,7 +158,7 @@ namespace antevolo {
                                                                  total_number_of_reads,
                                                                  edge_weight_calculator);
 
-        auto tree_storage = antevolo_processor.ConstructClonalTreesHG();
+        auto tree_storage = antevolo_processor.ConstructClonalTrees();
         //auto tree_storage = antevolo_processor.GetCDR3Stats();
 
         auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
