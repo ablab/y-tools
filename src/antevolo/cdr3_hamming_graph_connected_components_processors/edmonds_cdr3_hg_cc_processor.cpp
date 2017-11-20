@@ -10,6 +10,7 @@ namespace antevolo {
 
         for (size_t clone_num : vertices_nums_) {
             VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
+            tree.AddVertex(clone_num);
         }
 
         SetShortestDirectedParentEdges();
@@ -21,6 +22,7 @@ namespace antevolo {
         Refine(vertices_nums_, tree);
 
         tree.AddAllEdges();
+
         return tree;
     }
 

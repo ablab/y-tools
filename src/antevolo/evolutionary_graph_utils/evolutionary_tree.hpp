@@ -35,6 +35,7 @@ namespace antevolo {
 
         void AddAllEdges();
 
+        void AddVertex(size_t clone_num);
 
         bool HasParentEdge(size_t clone_num) const;
 

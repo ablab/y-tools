@@ -103,10 +103,10 @@ namespace antevolo {
 //                            component_index);
                 }
                 tree.SetTreeIndices(i + 1, component_index, 0);
-                if (tree.NumEdges() != 0) {
+                //if (tree.NumEdges() != 0) {
                     thread_tree_storages_[thread_id].Add(tree);
                     //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
-                }
+                //}
             }
             fake_clone_indices[thread_id] = vj_class_processor.GetCurrentFakeCloneIndex();
             reconstructed[thread_id] += vj_class_processor.GetNumberOfReconstructedClones();
@@ -221,9 +221,9 @@ namespace antevolo {
 //                            component_index);
                 }
                 tree.SetTreeIndices(i + 1, component_index, 0);
-                if (tree.NumEdges() != 0) {
-                    thread_tree_storages_[thread_id].Add(tree);
-                }
+//                if (tree.NumEdges() != 0) {
+                thread_tree_storages_[thread_id].Add(tree);
+//                }
             }
             fake_clone_indices[thread_id] = vj_class_processor.GetCurrentFakeCloneIndex();
             reconstructed[thread_id] += vj_class_processor.GetNumberOfReconstructedClones();

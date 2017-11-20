@@ -170,7 +170,7 @@ namespace antevolo {
         for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             ConnectedTreeSplitter tree_splitter;
             auto connected_trees = tree_splitter.Split(*it);
-            for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
+            for(auto it2 = connected_trees.begin(); it2 != connected_trees.end(); it2++) {
                 auto filtered_tree = fakes_filterer.FilterOneChildFakes(*it2);
                 connected_tree_storage.Add(filtered_tree);
             }
@@ -199,7 +199,10 @@ namespace antevolo {
             output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
         }
-        output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
+        // output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
+        output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, tree_storage);
+        INFO("RCM was written to " 
+            << path::append_path(config_.output_params.output_dir, "clonal_lineage_decomposition.rcm"));
 
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     }

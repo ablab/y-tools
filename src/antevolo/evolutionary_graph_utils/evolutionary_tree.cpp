@@ -59,6 +59,10 @@ namespace antevolo {
         }
     }
 
+    void EvolutionaryTree::AddVertex(size_t clone_num) {
+        vertices_.insert(clone_num);
+    }
+
     bool EvolutionaryTree::HasParentEdge(size_t clone_num) const {
         return edges_.find(clone_num) != edges_.end();
     }
