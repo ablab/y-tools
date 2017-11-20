@@ -80,7 +80,6 @@ namespace antevolo {
             std::string graph_fname = vj_class_processor.GetGraphFname(v_class);
             TRACE("--------------------------");
             TRACE("CDR3 and J nucleotides fasta: " << cdrs_fasta << ", CDR3 Hamming graph: " << graph_fname);
-            std::cout << graph_fname << "\n";
             auto connected_components = vj_class_processor.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
 
