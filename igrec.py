@@ -132,7 +132,7 @@ class IgRepConIO:
         self.compressed_final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
     def __initDiversityAnalyzer(self, output_dir):
-        self.divan_output = os.path.join(output_dir, 'divan')
+        self.divan_output = os.path.join(output_dir, 'diversity_analyzer')
         self.divan_feature_file = os.path.join(self.divan_output, 'cdr_details.txt')
 
     def __init__(self, output_dir, log):
