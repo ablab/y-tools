@@ -85,11 +85,12 @@ namespace {
     }
 
     std::unordered_map<size_t, size_t> hash_to_pos(const seqan::Dna5String& s) {
-        const size_t K = 30;
+        const size_t K = 100;
         const auto comp_hashes = polyhashes(s, K);
         std::unordered_map<size_t, size_t> map;
         for (size_t i = 0; i < comp_hashes.size(); i ++) {
-            VERIFY(map.find(comp_hashes[i]) == map.end());
+            VERIFY_MSG(map.find(comp_hashes[i]) == map.end(), "Seq " << s << ": hash " << comp_hashes[i] << " at " << map[comp_hashes[i]] << " and at " << i <<
+                     " (" << seqan_string_to_string(s).substr(map[comp_hashes[i]], K) << ", " << seqan_string_to_string(s).substr(i, K) << ")");
             map[comp_hashes[i]] = i;
         }
         return map;
@@ -131,7 +132,7 @@ namespace {
     
     seqan::Dna5String uncompress(const seqan::Dna5String& compressed, const seqan::Dna5String& orig,
                                  const seqan::Dna5String& v_gene, const seqan::Dna5String& j_gene) {
-        // * Search for a pair of equal 30-mers in compressed original read and vjf cleaned read (also compressed) trying straight and reverse complement.
+        // * Search for a pair of equal 100-mers in compressed original read and vjf cleaned read (also compressed) trying straight and reverse complement.
         // * Expand them by equality in both directions.
         // * Fill extents from germline.
         // * Uncompress.
@@ -203,4 +204,3 @@ int main(int argc, const char* const* argv) {
 
     return 0;
 }
-
