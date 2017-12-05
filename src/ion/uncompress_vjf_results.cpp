@@ -112,7 +112,7 @@ namespace {
             skip_equal(s, pos);
         }
         for (size_t i = from; i < to; i ++) {
-            VERIFY_MSG(pos < length(s), "to " << to);
+            VERIFY_MSG(pos < length(s), "to " << to << " s " << s << " comp s " << compress_string(s) << " from " << from);
             skip_equal(s, pos, { out });
         }
     }
@@ -191,6 +191,8 @@ int main(int argc, const char* const* argv) {
     uncompressed_reads.reserve(input.cleaned_ids.size());
     for (size_t i = 0; i < input.cleaned_ids.size(); i ++) {
         VERIFY(input.original_reads.find(input.cleaned_ids[i]) != input.original_reads.end());
+        VERIFY(input.germline_v_genes.find(input.read_v_gene[i]) != input.germline_v_genes.end());
+        VERIFY(input.germline_j_genes.find(input.read_j_gene[i]) != input.germline_j_genes.end());
         uncompressed_reads.push_back(uncompress(input.cleaned_reads[i], input.original_reads[input.cleaned_ids[i]],
                                                 input.germline_v_genes[input.read_v_gene[i]],
                                                 input.germline_j_genes[input.read_j_gene[i]]));
