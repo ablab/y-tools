@@ -1,4 +1,5 @@
 #include "vj_parallel_processor.hpp"
+#include <numeric>
 
 namespace vj_finder {
     void VJParallelProcessor::Initialize() {
@@ -26,6 +27,7 @@ namespace vj_finder {
     }
 
     VJAlignmentInfo VJParallelProcessor::Process() {
+        std::vector<size_t>num_refined_alignments(num_threads_);
         omp_set_num_threads(int(num_threads_));
 #pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < read_archive_.size(); i++) {
@@ -34,6 +36,7 @@ namespace vj_finder {
             thread_id_per_read_[i] = thread_id;
             VJQueryProcessor vj_query_processor(algorithm_params_, read_archive_, v_db_, j_db_);
             auto processed_read = vj_query_processor.Process(read_archive_[i]);
+            num_refined_alignments[thread_id] += vj_query_processor.GetNumRefinedAlignments();
             if(processed_read.ReadToBeFiltered()) {
 //                std::cout << "bad: " << processed_read.filtering_info.filtering_reason << std::endl;
                 info_per_thread[thread_id].UpdateFilteringInfo(processed_read.filtering_info);
@@ -43,6 +46,10 @@ namespace vj_finder {
                 info_per_thread[thread_id].UpdateHits(processed_read.vj_hits);
             }
         }
+        size_t total_refined_alignments = std::accumulate(num_refined_alignments.begin(),
+                                                          num_refined_alignments.end(), size_t(0));
+        INFO("refined " << total_refined_alignments << " alignments out of " << read_archive_.size() << " reads");
+
         auto total_alignment_info = GatherAlignmentInfos();
         size_t num_aligned_reads = total_alignment_info.NumVJHits();
         for(auto it = total_alignment_info.chain_type_cbegin(); it != total_alignment_info.chain_type_cend(); it++) {

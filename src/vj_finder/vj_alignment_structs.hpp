@@ -63,6 +63,11 @@ namespace vj_finder {
             return block_alignment_.score;
         }
 
+        double IntScore() const {
+            VERIFY(!Empty());
+            return block_alignment_.int_score;
+        }
+
         virtual int Start() const = 0;
 
         virtual int End() const = 0;

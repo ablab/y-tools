@@ -24,10 +24,15 @@ namespace vj_finder {
         core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_db_;
         const germline_utils::CustomGeneDatabase &j_db_;
+        size_t num_refined_alignments_;
+
+    private:
 
         ProcessedVJHits ComputeFilteringResults(core::Read &read, VJHits vj_hits);
 
         std::shared_ptr<BaseFillFixCropProcessor> GetFillFixCropProcessor();
+
+        VJHits RefineAlignment(const VJHits& vj_hits);
 
     public:
         VJQueryProcessor(const VJFinderConfig::AlgorithmParams &params,
@@ -36,8 +41,13 @@ namespace vj_finder {
                          const germline_utils::CustomGeneDatabase &j_db) : params_(params),
                                                                            read_archive_(read_archive),
                                                                            v_db_(v_db),
-                                                                           j_db_(j_db) { }
+                                                                           j_db_(j_db),
+                                                                           num_refined_alignments_(0) { }
 
         ProcessedVJHits Process(core::Read &read);
+
+        size_t GetNumRefinedAlignments() const {
+            return num_refined_alignments_;
+        }
     };
 }
