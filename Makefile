@@ -4,6 +4,12 @@ build_type?="RelWithAsserts"
 # Default install prefix
 prefix?="/usr/local"
 
+# Not-verify (disabled)
+nverify?=""
+
+# Build with gpertools profiler (disabled)
+gperf?=""
+
 .PHONY: clean clean_tests cmake all pack
 
 all: igrec
@@ -15,7 +21,10 @@ cpcfg:
 
 cmake:
 	mkdir -p build/release
-	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} \
+		-Wno-dev \
+		-DCMAKE_NVERIFY=${nverify} \
+		-DCMAKE_GOOGLE_PROFILER=${gperf}
 
 igrec: cmake
 	$(MAKE) -C build/release all
@@ -35,6 +44,9 @@ install: igrec
 dsf: cmake
 	$(MAKE) -C build/release dense_sgraph_finder
 
+shm_kmer_matrix: cmake
+	$(MAKE) -C build/release/shm_kmer_matrix_estimator
+
 check: cmake
 	$(MAKE) -C build/release check
 
@@ -53,11 +65,16 @@ cdr: cmake
 umi: cmake
 	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
+clean:
+	-rm *.pyc
+	-rm py/*.pyc
+	-rm -r build
+
+ant: cmake
+	$(MAKE) -C build/release antevolo
+
 igs: cmake
 	$(MAKE) -C build/release ig_simulator
-
-clean:
-	-rm -r build
 
 clean_tests:
 	-rm *.pyc
