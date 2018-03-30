@@ -81,6 +81,10 @@ namespace antevolo {
         auto labeled_j_db = j_labeling.CreateFilteredDb();
         INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
         INFO("Alignment against VJ germline segments");
+
+
+        auto v_dbs_for_representatives = ComputeRepresentativeVToDBMap(v_db);
+
         vj_finder::VJParallelProcessor processor(read_archive,
                                                  config_.cdr_labeler_config.vj_finder_config.algorithm_params,
                                                  labeled_v_db, labeled_j_db,
@@ -97,32 +101,7 @@ namespace antevolo {
         cdr_labeler::CDRLabelingWriter writer(config_.cdr_labeler_config.output_params,
                                               uncompressed_annotated_clone_set);
 
-        //trie_compressor
-
-        std::vector<seqan::Dna5String> clone_seqs;
-        for (auto it = uncompressed_annotated_clone_set.cbegin(); it != uncompressed_annotated_clone_set.cend(); it++) {
-            seqan::Dna5String clone_seq = it->Read().seq;
-            clone_seqs.push_back(clone_seq);
-        }
-        INFO("Trie_compressor starts, " << uncompressed_annotated_clone_set.size() << " annotated sequences were created");
-        auto indices = fast_ig_tools::Compressor::compressed_reads_indices(clone_seqs,
-        fast_ig_tools::Compressor::Type::TrieCompressor);
-        std::vector<size_t> abundances(uncompressed_annotated_clone_set.size());
-        for (auto i : indices) {
-            ++abundances[i];
-        }
-        annotation_utils::CDRAnnotatedCloneSet annotated_clone_set;
-        size_t compressed_clone_index = 0;
-        for (size_t i = 0; i < uncompressed_annotated_clone_set.size(); ++i) {
-            if (abundances[i] != 0) {
-                annotated_clone_set.AddClone(uncompressed_annotated_clone_set[i]);
-                annotated_clone_set[compressed_clone_index].SetSize(abundances[i]);
-                ++compressed_clone_index;
-            }
-        }
-        INFO(annotated_clone_set.size() << " unique prefixes were created");
-
-        //end trie_compressor
+        auto annotated_clone_set = ComputeCompressedCloneSet(uncompressed_annotated_clone_set);
 
         writer.OutputCDRDetails();
         writer.OutputSHMs();
@@ -276,4 +255,62 @@ namespace antevolo {
         in.close();
         return clusters;
     }
+
+    std::string AntEvoloLaunch::GetGeneBaseName(seqan::CharString name) const {
+        std::string gene_name = std::string(seqan::toCString(name));
+        //return gene_name;
+        std::vector<std::string> splits;
+        boost::split(splits, gene_name, boost::is_any_of("*"), boost::token_compress_on);
+        return splits[0];
+    }
+
+    annotation_utils::CDRAnnotatedCloneSet AntEvoloLaunch::ComputeCompressedCloneSet(
+            const annotation_utils::CDRAnnotatedCloneSet& uncompressed_annotated_clone_set) {
+        std::vector<seqan::Dna5String> clone_seqs;
+        for (auto it = uncompressed_annotated_clone_set.cbegin(); it != uncompressed_annotated_clone_set.cend(); it++) {
+            seqan::Dna5String clone_seq = it->Read().seq;
+            clone_seqs.push_back(clone_seq);
+        }
+        INFO("Trie_compressor starts, " << uncompressed_annotated_clone_set.size()
+                                        << " annotated sequences were created");
+        auto indices = fast_ig_tools::Compressor::compressed_reads_indices(
+                clone_seqs,
+                fast_ig_tools::Compressor::Type::TrieCompressor);
+        std::vector<size_t> abundances(uncompressed_annotated_clone_set.size());
+        for (auto i : indices) {
+            ++abundances[i];
+        }
+        annotation_utils::CDRAnnotatedCloneSet annotated_clone_set;
+        size_t compressed_clone_index = 0;
+        for (size_t i = 0; i < uncompressed_annotated_clone_set.size(); ++i) {
+            if (abundances[i] != 0) {
+                annotated_clone_set.AddClone(uncompressed_annotated_clone_set[i]);
+                annotated_clone_set[compressed_clone_index].SetSize(abundances[i]);
+                ++compressed_clone_index;
+            }
+        }
+        INFO(annotated_clone_set.size() << " unique prefixes were created");
+        return annotated_clone_set;
+    }
+
+    std::map<std::string, germline_utils::CustomGeneDatabase> AntEvoloLaunch::ComputeRepresentativeVToDBMap(
+            const germline_utils::CustomGeneDatabase& representatives_v_db) {
+        std::vector<std::string> representatives_names;
+        for (size_t i = 0; i < representatives_v_db.size(); ++i) {
+            const auto& gene = representatives_v_db[i];
+            std::stringstream ss;
+            ss << GetGeneBaseName(gene.name());
+            representatives_names.push_back(ss.str());
+        }
+        std::map<std::string, germline_utils::CustomGeneDatabase> v_dbs_for_representatives;
+        for (auto representative : representatives_names) {
+            germline_utils::GermlineDbGenerator db_generator_for_representative(
+                    config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
+                    config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params,
+                    representative);
+            auto v_db_for_representatice = db_generator_for_representative.GenerateVariableDb();
+            v_dbs_for_representatives[representative] = v_db_for_representatice;
+        }
+        return v_dbs_for_representatives;
+    };
 }

@@ -25,6 +25,14 @@ namespace antevolo {
 
         void AnalyzeParallelEvolution(const EvolutionaryTreeStorage& trees);
 
+        annotation_utils::CDRAnnotatedCloneSet ComputeCompressedCloneSet(
+                const annotation_utils::CDRAnnotatedCloneSet& uncompressed_annotated_clone_set);
+
+        std::string GetGeneBaseName(seqan::CharString name) const;
+
+        std::map<std::string, germline_utils::CustomGeneDatabase> ComputeRepresentativeVToDBMap(
+                const germline_utils::CustomGeneDatabase& representatives_v_db);
+
     public:
         AntEvoloLaunch(const AntEvoloConfig& config) : config_(config) { }
 
