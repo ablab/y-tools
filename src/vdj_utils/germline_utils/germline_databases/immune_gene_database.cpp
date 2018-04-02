@@ -57,6 +57,10 @@ namespace germline_utils {
         VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
         return immune_genes_.at(index);
     }
+    const ImmuneGene& ImmuneGeneDatabase::GetImmuneGeneByIndex(size_t index) const {
+        VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
+        return immune_genes_.at(index);
+    }
 
     const ImmuneGene &ImmuneGeneDatabase::GetByName(std::string gene_name) const {
         VERIFY_MSG(gene_name_map_.find(gene_name) != gene_name_map_.end(), "Immune gene DB does not contain gene " << gene_name);

@@ -123,6 +123,7 @@ namespace germline_utils {
         const ImmuneGene &operator[](size_t index) const;
 
         ImmuneGene& GetImmuneGeneByIndex(size_t index);
+        const ImmuneGene& GetImmuneGeneByIndex(size_t index) const;
 
 
         const ImmuneGene &GetByName(std::string gene_name) const;

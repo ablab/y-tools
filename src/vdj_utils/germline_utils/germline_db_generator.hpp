@@ -14,6 +14,7 @@ namespace germline_utils {
         std::vector<std::string> j_genes_fnames_;
 
         void GenerateGeneFnames();
+        void GenerateGeneFnames(std::string representative_name);
 
     public:
         GermlineDbGenerator(const germline_utils::GermlineInput &germ_input,
@@ -21,6 +22,13 @@ namespace germline_utils {
                 germ_input_(germ_input),
                 germ_params_(germ_params) {
             GenerateGeneFnames();
+        }
+        GermlineDbGenerator(const germline_utils::GermlineInput &germ_input,
+                            const germline_utils::GermlineParams &germ_params,
+                            std::string representative_name) :
+                germ_input_(germ_input),
+                germ_params_(germ_params) {
+            GenerateGeneFnames(representative_name);
         }
 
         germline_utils::CustomGeneDatabase GenerateVariableDb();
