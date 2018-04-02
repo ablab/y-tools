@@ -89,11 +89,31 @@ namespace antevolo {
         core::Read GetRead() const { return read_; }
 
         template<bool is_v>
-        std::pair<size_t, int> ComputeBestGeneIndex(const core::Read& read);
+        std::pair<size_t, int> ComputeBestGeneIndex(const core::Read& read) {
+            using namespace seqan;
+
+            std::vector<int> scores;
+            auto scoring_scheme = GetScoringScheme(GetScoringParams<is_v>());
+            auto align_config = GetAlignConfig();
+            const auto& db = is_v ? v_db_ : j_db_;
+
+            for (size_t i = 0; i < db.size(); ++i) {
+                const auto& gene = db[i];
+                int score = globalAlignmentScore(gene.seq(),
+                                                 read.seq,
+                                                 scoring_scheme,
+                                                 align_config,
+                                                 AffineGaps());
+                scores.push_back(score);
+            }
+            auto best_score_it = std::max_element(scores.begin(), scores.end());
+            size_t best_index = static_cast<size_t>(std::distance(scores.begin(), best_score_it));
+            return std::make_pair(best_index, *best_score_it);
+        }
 
         //TODO: filter
 
-        void Run();
+//        void Run();
     };
 }
 
