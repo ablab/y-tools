@@ -13,6 +13,8 @@ namespace antevolo {
         load(input_params.shm_kmer_model_igh, pt, "shm_kmer_model_igh");
         load(input_params.shm_kmer_model_igk, pt, "shm_kmer_model_igk");
         load(input_params.shm_kmer_model_igl, pt, "shm_kmer_model_igl");
+
+        load(input_params.reannotator_germline_dir, pt, "reannotator_germline_dir");
     }
 
     void update_paths(AntEvoloConfig::OutputParams &output_params) {

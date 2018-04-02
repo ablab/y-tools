@@ -1,5 +1,7 @@
 #include "v_class_processor.hpp"
 #include <cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.hpp>
+#include <reannotation/read_family_aligner.hpp>
+#include <clone_set_decomposers/clone_set_decomposer.hpp>
 
 
 namespace antevolo {
@@ -34,16 +36,18 @@ namespace antevolo {
 
     void VClassProcessor::ChangeJgene(const germline_utils::ImmuneGene &v_gene,
                                       const germline_utils::ImmuneGene &j_gene) {
+        auto clone_by_read_constructor = GetCloneByReadConstructor();
         auto &clone_set = *clone_set_ptr_;
         for (auto it = decomposition_class_.begin(); it != decomposition_class_.end(); it++) {
             if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
                 continue;
             auto read = const_cast<core::Read &>(clone_set[*it].Read());
-            clone_set[*it] = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, j_gene);
+            clone_set[*it] = clone_by_read_constructor.GetCloneByReadWithSpecificGenes(read, v_gene, j_gene);
         }
     }
 
     void VClassProcessor::ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info) {
+        auto clone_by_read_constructor = GetCloneByReadConstructor();
         auto &clone_set = *clone_set_ptr_;
         auto vertices = hamming_graph_info.GetAllClones();
         auto v_gene = clone_set[*vertices.begin()].VGene();
@@ -76,7 +80,67 @@ namespace antevolo {
                     clone.GetCDR3JDifferenceNucleotides(jdifference_positions_));
             VERIFY(cdr3_to_old_index_map_.find(cdr3Jnucl) != cdr3_to_old_index_map_.end());
             auto read = const_cast<core::Read &>(clone_set[*it].Read());
-            auto new_clone = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, max_j_gene);
+            auto new_clone = clone_by_read_constructor.GetCloneByReadWithSpecificGenes(read, v_gene, max_j_gene);
+            clone_set[*it] = new_clone;
+            std::string new_cdr3Jnucl = core::dna5String_to_string(
+                    new_clone.GetCDR3JDifferenceNucleotides(jdifference_positions_));
+            cdr3_to_old_index_map_.insert({new_cdr3Jnucl, cdr3_to_old_index_map_[cdr3Jnucl]});
+            VERIFY(cdr3_to_old_index_map_.find(new_cdr3Jnucl) != cdr3_to_old_index_map_.end());
+        }
+    }
+
+    void VClassProcessor::ChangeVJgenesToMax(CDR3HammingGraphComponentInfo hamming_graph_info) {
+        auto &clone_set = *clone_set_ptr_;
+        auto vertices = hamming_graph_info.GetAllClones();
+        auto clone_by_read_constructor = GetCloneByReadConstructor(hamming_graph_info.GetRepresentativeName());
+        const auto& v_db =
+                gene_db_info_.representative_to_db_map_.find(hamming_graph_info.GetRepresentativeName())->second.first;
+        const auto& j_db = gene_db_info_.j_db_;
+
+        std::vector<size_t> best_v_indices;
+        std::vector<size_t> best_j_indices;
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            auto& clone = clone_set[*it];
+            auto read = clone.Read();
+
+            ReadFamilyAligner v_aligner(
+                    config_,
+                    gene_db_info_.representative_to_db_map_.find(hamming_graph_info.GetRepresentativeName())->second.first,
+                    gene_db_info_.j_db_,
+                    read);
+            auto pv = v_aligner.ComputeBestGeneIndex<true>(read);
+            size_t best_v_index = pv.first;
+
+            ReadFamilyAligner j_aligner(
+                    config_,
+                    gene_db_info_.representative_to_db_map_.find(hamming_graph_info.GetRepresentativeName())->second.first,
+                    gene_db_info_.j_db_,
+                    read);
+            auto pj = v_aligner.ComputeBestGeneIndex<false>(read);
+            size_t best_j_index = pj.first;
+
+            best_v_indices.push_back(best_v_index);
+            best_j_indices.push_back(best_j_index);
+        }
+
+
+        size_t most_frequent_v = GetMode(best_v_indices);
+        size_t most_frequent_j = GetMode(best_j_indices);
+
+        auto max_v_gene = v_db[most_frequent_v];
+        auto max_j_gene = j_db[most_frequent_j];
+
+        for (auto it = vertices.begin(); it != vertices.end(); it++) {
+            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+                continue;
+            }
+
+            auto &clone = clone_set[*it];
+            std::string cdr3Jnucl = core::dna5String_to_string(
+                    clone.GetCDR3JDifferenceNucleotides(jdifference_positions_));
+            VERIFY(cdr3_to_old_index_map_.find(cdr3Jnucl) != cdr3_to_old_index_map_.end());
+            auto read = const_cast<core::Read &>(clone_set[*it].Read());
+            auto new_clone = clone_by_read_constructor.GetCloneByReadWithSpecificGenes(read, max_v_gene, max_j_gene);
             clone_set[*it] = new_clone;
             std::string new_cdr3Jnucl = core::dna5String_to_string(
                     new_clone.GetCDR3JDifferenceNucleotides(jdifference_positions_));
@@ -94,11 +158,19 @@ namespace antevolo {
                                                          unique_cdr3s_,
                                                          hg_component,
                                                          component_id);
-        ChangeJgeneToMax(hamming_graph_info);
+        hamming_graph_info.SetRepresentativeName(
+                CloneSetDecomposer::GetGeneBaseName(
+                        clone_set_ptr_->operator[](hamming_graph_info.GetFirstClone()).VGene().name()));
+
+
+        ChangeVJgenesToMax(hamming_graph_info);
+
+
+        auto clone_by_read_constructor = GetCloneByReadConstructor(hamming_graph_info.GetRepresentativeName());
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
                 new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
-                                                 clone_by_read_constructor_,
+                                                 clone_by_read_constructor,
                                                  hamming_graph_info,
                                                  current_fake_clone_index_,
                                                  edge_weight_calculator));
@@ -107,6 +179,4 @@ namespace antevolo {
         reconstructed_ += forest_calculator->GetNumberOfReconstructedClones();
         return tree;
     }
-
-
 }

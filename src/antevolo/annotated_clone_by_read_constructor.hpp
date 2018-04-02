@@ -8,15 +8,15 @@
 namespace antevolo {
 
     class AnnotatedCloneByReadConstructor {
-        germline_utils::CustomGeneDatabase& labeled_v_db_;
-        germline_utils::CustomGeneDatabase& labeled_j_db_;
+        const germline_utils::CustomGeneDatabase& labeled_v_db_;
+        const germline_utils::CustomGeneDatabase& labeled_j_db_;
         const cdr_labeler::DbCDRLabeling& v_labeling_;
         const cdr_labeler::DbCDRLabeling& j_labeling_;
         const vj_finder::VJFinderConfig::AlgorithmParams& vj_finder_params_;
         const cdr_labeler::CDRLabelerConfig::SHMFindingParams &shm_config_;
     public:
-        AnnotatedCloneByReadConstructor(germline_utils::CustomGeneDatabase& labeled_v_db,
-                                        germline_utils::CustomGeneDatabase& labeled_j_db,
+        AnnotatedCloneByReadConstructor(const germline_utils::CustomGeneDatabase& labeled_v_db,
+                                        const germline_utils::CustomGeneDatabase& labeled_j_db,
                                         const cdr_labeler::DbCDRLabeling& v_labeling,
                                         const cdr_labeler::DbCDRLabeling& j_labeling,
                                         const vj_finder::VJFinderConfig::AlgorithmParams& vj_finder_params,

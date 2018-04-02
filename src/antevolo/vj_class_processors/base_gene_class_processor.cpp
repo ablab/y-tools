@@ -70,10 +70,11 @@ namespace antevolo {
                                                          unique_cdr3s_,
                                                          hg_component,
                                                          component_id);
+        auto clone_by_read_constructor = GetCloneByReadConstructor();
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
                 new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
-                                                 clone_by_read_constructor_,
+                                                 clone_by_read_constructor,
                                                  hamming_graph_info,
                                                  current_fake_clone_index_,
                                                  edge_weight_calculator));
@@ -89,4 +90,24 @@ namespace antevolo {
             const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
         return ProcessComponentWithEdmonds(hg_component, component_id, edge_weight_calculator);
     }
+
+
+    AnnotatedCloneByReadConstructor BaseGeneClassProcessor::GetCloneByReadConstructor() {
+        return AnnotatedCloneByReadConstructor(gene_db_info_.representative_v_db_,
+                                               gene_db_info_.j_db_,
+                                               gene_db_info_.v_labeling_,
+                                               gene_db_info_.j_labeling_,
+                                               config_.cdr_labeler_config.vj_finder_config.algorithm_params,
+                                               config_.cdr_labeler_config.shm_params);
+    }
+
+    AnnotatedCloneByReadConstructor BaseGeneClassProcessor::GetCloneByReadConstructor(std::string representative_name) {
+        return AnnotatedCloneByReadConstructor(
+                gene_db_info_.representative_to_db_map_.find(representative_name)->second.first,
+                gene_db_info_.j_db_,
+                gene_db_info_.representative_to_db_map_.find(representative_name)->second.second,
+                gene_db_info_.j_labeling_,
+                config_.cdr_labeler_config.vj_finder_config.algorithm_params,
+                config_.cdr_labeler_config.shm_params);
+        }
 }

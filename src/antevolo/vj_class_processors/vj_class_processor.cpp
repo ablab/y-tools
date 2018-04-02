@@ -12,10 +12,11 @@ namespace antevolo {
                                                 unique_cdr3s_,
                                                 hg_component,
                                                 component_id);
+        auto clone_by_read_constructor = GetCloneByReadConstructor();
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
                 new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
-                                                 clone_by_read_constructor_,
+                                                 clone_by_read_constructor,
                                                  hamming_graph_info,
                                                  current_fake_clone_index_));
         auto tree = forest_calculator->Process();

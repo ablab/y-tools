@@ -14,12 +14,12 @@ namespace antevolo {
         VClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
                         const core::DecompositionClass& decomposition_class,
                         const AntEvoloConfig& config,
-                        const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                        const GeneDbInfo& gene_db_info,
                         size_t current_fake_clone_index) :
                 BaseGeneClassProcessor(clone_set_ptr,
                                        decomposition_class,
                                        config,
-                                       clone_by_read_constructor,
+                                       gene_db_info,
                                        current_fake_clone_index) {
             auto chain = clone_set_ptr->operator[](*decomposition_class_.cbegin()).ChainType().Chain();
             if (chain == germline_utils::ImmuneChainType::HeavyIgChain) {
@@ -40,5 +40,24 @@ namespace antevolo {
         void ChangeJgene(const germline_utils::ImmuneGene &v_gene,
                          const germline_utils::ImmuneGene &j_gene);
         void ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info);
+        void ChangeVJgenesToMax(CDR3HammingGraphComponentInfo hamming_graph_info);
+
+        template<class T> T GetMode(std::vector<T> v) {
+            std::map<T, size_t> freq_map;
+            for (auto i : v) {
+                if (freq_map.find(i) == freq_map.end()) {
+                    freq_map.insert({i, 0});
+                }
+                ++freq_map[i];
+            }
+            T most_frequent = std::max_element(
+                    std::begin(freq_map),
+                    std::end(freq_map),
+                    [](const std::pair<T, size_t>& p1,
+                       const std::pair<T, size_t>& p2) {
+                        return p1.second < p2.second;
+                    })->first;
+            return most_frequent;
+        }
     };
 }

@@ -3,7 +3,7 @@
 #include "clone_set_decomposer.hpp"
 
 namespace  antevolo {
-    std::string CloneSetDecomposer::GetGeneBaseName(seqan::CharString name) const {
+    std::string CloneSetDecomposer::GetGeneBaseName(seqan::CharString name) {
         std::string gene_name = std::string(seqan::toCString(name));
         //return gene_name;
         std::vector<std::string> splits;

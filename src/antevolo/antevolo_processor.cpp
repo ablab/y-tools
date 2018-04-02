@@ -48,7 +48,7 @@ namespace antevolo {
                     new VClassProcessor(clone_sets[thread_id],
                                          vj_class,
                                          config_,
-                                         clone_by_read_constructor_,
+                                         gene_db_info_,
                                          fake_clone_indices[thread_id]));
             auto connected_components = v_class_processor->ComputeConnectedComponents();
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {

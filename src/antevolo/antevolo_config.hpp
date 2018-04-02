@@ -15,6 +15,8 @@ namespace antevolo {
             std::string shm_kmer_model_igh;
             std::string shm_kmer_model_igk;
             std::string shm_kmer_model_igl;
+
+            std::string reannotator_germline_dir;
         };
 
         struct OutputParams {

@@ -9,12 +9,12 @@ namespace antevolo {
         VJClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
                          const core::DecompositionClass& decomposition_class,
                          const AntEvoloConfig& config,
-                         const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                         const GeneDbInfo& gene_db_info,
                          size_t current_fake_clone_index) :
                 BaseGeneClassProcessor(clone_set_ptr,
                                        decomposition_class,
                                        config,
-                                       clone_by_read_constructor,
+                                       gene_db_info,
                                        current_fake_clone_index) { }
 
         void CreateUniqueCDR3Map() override;

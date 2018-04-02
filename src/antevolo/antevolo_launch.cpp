@@ -62,32 +62,15 @@ namespace antevolo {
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.cdr_labeler_config.vj_finder_config.io_params.output_params.output_details.fix_spaces)
             read_archive.FixSpacesInHeaders();
-        germline_utils::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
-                                                         config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
-        INFO("Generation of DB for variable segments...");
-        germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
-        INFO("Generation of DB for join segments...");
-        germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
-        // todo: refactor code duplication
-        INFO("CDR labeling for V gene segments");
-        auto v_labeling = cdr_labeler::GermlineDbLabeler(v_db,
-                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
-        INFO("CDR labeling for J gene segments");
-        auto j_labeling = cdr_labeler::GermlineDbLabeler(j_db,
-                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
-        INFO("Creation of labeled V and J databases");
-        auto labeled_v_db = v_labeling.CreateFilteredDb();
-        INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
-        auto labeled_j_db = j_labeling.CreateFilteredDb();
-        INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
-        INFO("Alignment against VJ germline segments");
+
+        GeneDbInfo gene_db_info = ComputeGeneDbInfo();
 
 
-        auto v_dbs_for_representatives = ComputeRepresentativeVToDBMap(v_db);
 
         vj_finder::VJParallelProcessor processor(read_archive,
                                                  config_.cdr_labeler_config.vj_finder_config.algorithm_params,
-                                                 labeled_v_db, labeled_j_db,
+                                                 gene_db_info.representative_v_db_,
+                                                 gene_db_info.j_db_,
                                                  config_.cdr_labeler_config.run_params.num_threads);
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
@@ -96,7 +79,9 @@ namespace antevolo {
             WARN("WARNING: Some reads were filtered out. EvoQuast mode assumes that all the reads have been cleaned before");
         }
 
-        cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.shm_params, v_labeling, j_labeling);
+        cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.shm_params,
+                                                 gene_db_info.v_labeling_,
+                                                 gene_db_info.j_labeling_);
         auto uncompressed_annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
         cdr_labeler::CDRLabelingWriter writer(config_.cdr_labeler_config.output_params,
                                               uncompressed_annotated_clone_set);
@@ -107,17 +92,17 @@ namespace antevolo {
         writer.OutputSHMs();
 
         AnnotatedCloneByReadConstructor clone_by_read_constructor(
-                labeled_v_db,
-                labeled_j_db,
-                v_labeling,
-                j_labeling,
+                gene_db_info.representative_v_db_,
+                gene_db_info.j_db_,
+                gene_db_info.v_labeling_,
+                gene_db_info.j_labeling_,
                 config_.cdr_labeler_config.vj_finder_config.algorithm_params,
                 config_.cdr_labeler_config.shm_params);
 
         if (config_.algorithm_params.compare) {
             LaunchEvoQuast(annotated_clone_set);
         } else {
-            LaunchDefault(clone_by_read_constructor,
+            LaunchDefault(gene_db_info,
                           annotated_clone_set,
                           read_archive.size());
         }
@@ -126,14 +111,14 @@ namespace antevolo {
         INFO("AntEvolo ends");
     }
 
-    void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+    void AntEvoloLaunch::LaunchDefault(const GeneDbInfo& gene_db_info,
                                        annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                                        size_t total_number_of_reads) {
         INFO("Tree construction starts");
         auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
         AntEvoloProcessor antevolo_processor = AntEvoloProcessor(config_,
                                                                  annotated_clone_set,
-                                                                 clone_by_read_constructor,
+                                                                 gene_db_info,
                                                                  total_number_of_reads,
                                                                  edge_weight_calculator);
         auto tree_storage = antevolo_processor.Process();
@@ -256,6 +241,31 @@ namespace antevolo {
         return clusters;
     }
 
+    GeneDbInfo AntEvoloLaunch::ComputeGeneDbInfo() {
+        germline_utils::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
+                                                         config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
+        INFO("Generation of DB for variable segments...");
+        germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
+        INFO("Generation of DB for join segments...");
+        germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
+        // todo: refactor code duplication
+        INFO("CDR labeling for V gene segments");
+        auto v_labeling = cdr_labeler::GermlineDbLabeler(v_db,
+                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
+        INFO("CDR labeling for J gene segments");
+        auto j_labeling = cdr_labeler::GermlineDbLabeler(j_db,
+                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
+        INFO("Creation of labeled V and J databases");
+        auto labeled_v_db = v_labeling.CreateFilteredDb();
+        INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
+        auto labeled_j_db = j_labeling.CreateFilteredDb();
+        INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
+        INFO("Alignment against VJ germline segments");
+        auto v_dbs_for_representatives = ComputeRepresentativeVToDBMap(v_db);
+        GeneDbInfo gene_db_info(labeled_v_db, labeled_j_db, v_dbs_for_representatives, v_labeling, j_labeling);
+        return gene_db_info;
+    }
+
     std::string AntEvoloLaunch::GetGeneBaseName(seqan::CharString name) const {
         std::string gene_name = std::string(seqan::toCString(name));
         //return gene_name;
@@ -293,7 +303,8 @@ namespace antevolo {
         return annotated_clone_set;
     }
 
-    std::map<std::string, germline_utils::CustomGeneDatabase> AntEvoloLaunch::ComputeRepresentativeVToDBMap(
+    std::map<std::string, std::pair<germline_utils::CustomGeneDatabase,
+                                    cdr_labeler::DbCDRLabeling>> AntEvoloLaunch::ComputeRepresentativeVToDBMap(
             const germline_utils::CustomGeneDatabase& representatives_v_db) {
         std::vector<std::string> representatives_names;
         for (size_t i = 0; i < representatives_v_db.size(); ++i) {
@@ -302,14 +313,21 @@ namespace antevolo {
             ss << GetGeneBaseName(gene.name());
             representatives_names.push_back(ss.str());
         }
-        std::map<std::string, germline_utils::CustomGeneDatabase> v_dbs_for_representatives;
+        std::map<std::string, std::pair<germline_utils::CustomGeneDatabase,
+                                        cdr_labeler::DbCDRLabeling>> v_dbs_for_representatives;
         for (auto representative : representatives_names) {
             germline_utils::GermlineDbGenerator db_generator_for_representative(
                     config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
                     config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params,
                     representative);
-            auto v_db_for_representatice = db_generator_for_representative.GenerateVariableDb();
-            v_dbs_for_representatives[representative] = v_db_for_representatice;
+            auto v_db_for_representative = db_generator_for_representative.GenerateVariableDb();
+            auto v_labeling_for_representative = cdr_labeler::GermlineDbLabeler(
+                    v_db_for_representative,
+                    config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
+            auto p = std::make_pair(
+                    v_labeling_for_representative.CreateFilteredDb(),
+                    v_labeling_for_representative);
+            v_dbs_for_representatives.insert(std::make_pair(representative, p));
         }
         return v_dbs_for_representatives;
     };

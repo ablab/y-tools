@@ -6,6 +6,7 @@ input_params {
     shm_kmer_model_igh data/shm_model/NoKNeighbours_IGH.csv
     shm_kmer_model_igk data/shm_model/NoKNeighbours_IGK.csv
     shm_kmer_model_igl data/shm_model/NoKNeighbours_IGL.csv
+    reannotator_germline_dir data/germline/human/IG_antevolo/reannotator_germlines
 }
 
 output_params {

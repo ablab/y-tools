@@ -5,6 +5,7 @@
 #include <antevolo_config.hpp>
 #include "cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.hpp"
 #include <shm_model_utils/shm_model_edge_weight_calculator.hpp>
+#include <gene_db_info.hpp>
 
 namespace antevolo {
     class BaseGeneClassProcessor {
@@ -13,7 +14,7 @@ namespace antevolo {
 
         const core::DecompositionClass &decomposition_class_;
         const AntEvoloConfig &config_;
-        const AnnotatedCloneByReadConstructor &clone_by_read_constructor_;
+        const GeneDbInfo& gene_db_info_;
         size_t current_fake_clone_index_;
         size_t reconstructed_;
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
@@ -43,17 +44,22 @@ namespace antevolo {
         std::vector<SparseGraphPtr>
         ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph, size_t tau);
 
+
+        AnnotatedCloneByReadConstructor GetCloneByReadConstructor();
+
+        AnnotatedCloneByReadConstructor GetCloneByReadConstructor(std::string representative_name);
+
     public:
 
         BaseGeneClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
                                const core::DecompositionClass &decomposition_class,
                                const AntEvoloConfig &config,
-                               const AnnotatedCloneByReadConstructor &clone_by_read_constructor,
+                               const GeneDbInfo& gene_db_info,
                                size_t current_fake_clone_index) :
                 clone_set_ptr_(clone_set_ptr),
                 decomposition_class_(decomposition_class),
                 config_(config),
-                clone_by_read_constructor_(clone_by_read_constructor),
+                gene_db_info_(gene_db_info),
                 current_fake_clone_index_(current_fake_clone_index),
                 reconstructed_(0) {}
 

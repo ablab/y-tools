@@ -7,6 +7,7 @@
 #include "annotation_utils/annotated_clone_set.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
 #include "evolutionary_tree_storage.hpp"
+#include "gene_db_info.hpp"
 
 namespace antevolo {
     class AntEvoloLaunch {
@@ -17,7 +18,7 @@ namespace antevolo {
         std::vector<boost::unordered_set<size_t>> ReadClusters(
                 const boost::unordered_map<std::string, size_t>& read_name_to_index);
 
-        void LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+        void LaunchDefault(const GeneDbInfo& gene_db_info,
                            annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                            size_t total_number_of_reads);
 
@@ -30,8 +31,11 @@ namespace antevolo {
 
         std::string GetGeneBaseName(seqan::CharString name) const;
 
-        std::map<std::string, germline_utils::CustomGeneDatabase> ComputeRepresentativeVToDBMap(
+        std::map<std::string, std::pair<germline_utils::CustomGeneDatabase,
+                                        cdr_labeler::DbCDRLabeling>> ComputeRepresentativeVToDBMap(
                 const germline_utils::CustomGeneDatabase& representatives_v_db);
+
+        GeneDbInfo ComputeGeneDbInfo();
 
     public:
         AntEvoloLaunch(const AntEvoloConfig& config) : config_(config) { }
