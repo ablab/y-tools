@@ -160,6 +160,12 @@ namespace antevolo {
                         clone_num);
 
                 auto chain = clone_set[clone_num].ChainType().Chain();
+
+//                INFO("============\t" << clone_set.size() << "\t" << clone_num);
+//                INFO(clone_set[clone_num].Read().name << "\t read name");
+//                INFO("gene\t" << clone_set[clone_num].VGene());
+//                INFO("gene name \t" << clone_set[clone_num].VGene().name());
+//                INFO("here");
                 if (edge->CDR3Distance() > config_.GetNumMismatchesByChainType(chain) +
                                            config_.similar_cdr3s_params.num_indels) {
                     continue;
@@ -179,6 +185,8 @@ namespace antevolo {
                 }
             }
         }
+
+
 //        INFO("calculated best edges");
         std::vector<size_t> vertices_list;
         for (size_t clone_num : vertices_nums) {

@@ -92,6 +92,7 @@ namespace antevolo {
         std::pair<size_t, int> ComputeBestGeneIndex(const core::Read& read) {
             using namespace seqan;
 
+
             std::vector<int> scores;
             auto scoring_scheme = GetScoringScheme(GetScoringParams<is_v>());
             auto align_config = GetAlignConfig();
@@ -113,7 +114,9 @@ namespace antevolo {
 
         //TODO: filter
 
-//        void Run();
+        void Run();
+
+        void Align(size_t v_id, size_t j_id);
     };
 }
 

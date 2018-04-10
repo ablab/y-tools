@@ -106,12 +106,15 @@ namespace antevolo {
     size_t
     AntEvoloConfig::AlgorithmParams::GetNumMismatchesByChainType(const germline_utils::ImmuneChainType chain) const {
         size_t num_mismatches = 0;
-        if (chain == germline_utils::ImmuneChainType::HeavyIgChain)
+        if (chain == germline_utils::ImmuneChainType::HeavyIgChain) {
             num_mismatches = similar_cdr3s_params.num_mismatches_igh;
-        else if (chain == germline_utils::ImmuneChainType::KappaIgChain)
+        }
+        else if (chain == germline_utils::ImmuneChainType::KappaIgChain) {
             num_mismatches = similar_cdr3s_params.num_mismatches_igk;
-        else if (chain == germline_utils::ImmuneChainType::LambdaIgChain)
+        }
+        else if (chain == germline_utils::ImmuneChainType::LambdaIgChain) {
             num_mismatches = similar_cdr3s_params.num_mismatches_igl;
+        }
         VERIFY(num_mismatches != 0);
         return num_mismatches;
     }

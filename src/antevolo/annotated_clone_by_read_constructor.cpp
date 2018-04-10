@@ -46,6 +46,7 @@ namespace antevolo {
                                              pre_j_hit.Strand());
             vj_hits.AddJHit(j_hit);
         }
+        INFO(vj_hits.NumJHits());
         cdr_labeler::ReadCDRLabeler read_labeler(shm_config_, v_labeling_, j_labeling_);
         return read_labeler.CreateAnnotatedClone(vj_hits);
     }

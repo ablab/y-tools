@@ -2,6 +2,7 @@
 
 #include "base_gene_class_processor.hpp"
 #include <cdr3_hamming_graph_component_info.hpp>
+#include <clone_set_decomposers/clone_set_decomposer.hpp>
 
 namespace antevolo {
     class VClassProcessor : public BaseGeneClassProcessor {
@@ -32,6 +33,16 @@ namespace antevolo {
                 jdifference_positions_ = {};
             }
             VERIFY(jdifference_positions_.size() != 0);
+
+//            auto current_representative_name = CloneSetDecomposer::GetGeneBaseName(clone_set_ptr->operator[](*decomposition_class.cbegin()).VGene().name());
+//            if (current_representative_name == "IGHV1-18") {
+//                for (size_t i = 0;
+//                     i < gene_db_info.representative_to_db_map_.find("IGHV1-18")->second.first.size(); ++i) {
+//                    INFO(gene_db_info.representative_to_db_map_.find("IGHV1-18")->second.first[i].name());
+//                }
+//            }
+
+
         }
 
         void CreateUniqueCDR3Map() override;

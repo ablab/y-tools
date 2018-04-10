@@ -65,6 +65,10 @@ namespace antevolo {
 
         GeneDbInfo gene_db_info = ComputeGeneDbInfo();
 
+//        for (size_t i = 0;
+//             i < gene_db_info.representative_to_db_map_.find("IGHV1-18")->second.first.size(); ++i) {
+//            INFO(gene_db_info.representative_to_db_map_.find("IGHV1-18")->second.first[i].name());
+//        }
 
 
         vj_finder::VJParallelProcessor processor(read_archive,
@@ -90,14 +94,6 @@ namespace antevolo {
 
         writer.OutputCDRDetails();
         writer.OutputSHMs();
-
-        AnnotatedCloneByReadConstructor clone_by_read_constructor(
-                gene_db_info.representative_v_db_,
-                gene_db_info.j_db_,
-                gene_db_info.v_labeling_,
-                gene_db_info.j_labeling_,
-                config_.cdr_labeler_config.vj_finder_config.algorithm_params,
-                config_.cdr_labeler_config.shm_params);
 
         if (config_.algorithm_params.compare) {
             LaunchEvoQuast(annotated_clone_set);
@@ -321,6 +317,8 @@ namespace antevolo {
                     config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params,
                     representative);
             auto v_db_for_representative = db_generator_for_representative.GenerateVariableDb();
+
+
             auto v_labeling_for_representative = cdr_labeler::GermlineDbLabeler(
                     v_db_for_representative,
                     config_.cdr_labeler_config.cdrs_params).ComputeLabeling();

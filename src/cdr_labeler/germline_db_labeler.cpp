@@ -20,7 +20,7 @@ namespace cdr_labeler {
 
     DbCDRLabeling GermlineDbLabeler::ComputeLabeling() {
         DbCDRLabeling cdr_labeling(gene_db_);
-        INFO("Algorithm of CDR computation: " << cdr_search_algorithm_to_str(cdr_params_.cdr_search_algorithm));
+        TRACE("Algorithm of CDR computation: " << cdr_search_algorithm_to_str(cdr_params_.cdr_search_algorithm));
         for(auto it = gene_db_.cbegin(); it != gene_db_.cend(); it++) {
             germline_utils::ImmuneGeneDatabase& specific_gene_db = gene_db_.GetDbByGeneType(*it);
             auto cdr_labeler = GetImmuneGeneLabeler(specific_gene_db.GeneType());
@@ -30,7 +30,7 @@ namespace cdr_labeler {
                 cdr_labeling.AddGeneLabeling(specific_gene_db[i], gene_labeling);
             }
         }
-        INFO("# records from DB with empty CDR labelings: " << cdr_labeling.NumEmptyLabelings());
+        TRACE("# records from DB with empty CDR labelings: " << cdr_labeling.NumEmptyLabelings());
         return cdr_labeling;
     }
 }
