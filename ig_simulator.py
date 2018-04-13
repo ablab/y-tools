@@ -104,6 +104,11 @@ def parse_args():
                                default=10,
                                dest="number_of_metaroots")
 
+    optional_args.add_argument("-c", "--config",
+                               type=str,
+                               default=None,
+                               dest="ig_simulator_config_path")
+
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
@@ -149,11 +154,16 @@ def CopyConfigs(params, log):
     params.vj_finder_config_dir = os.path.abspath(os.path.join(params.output_config_dir, "vj_finder"))
     params.vj_finder_config_filename = os.path.join(params.vj_finder_config_dir, "config.info")
 
-    shutil.copytree(ig_simulator_config_dir, params.output_config_dir)
+    params.output_config_file = os.path.join(params.output_config_dir, "config.info")
+
+    if params.ig_simulator_config_path:
+        os.makedirs(params.output_config_dir)
+        shutil.copy(params.ig_simulator_config_path, params.output_config_file)
+    else:
+        shutil.copytree(ig_simulator_config_dir, params.output_config_dir)
     shutil.copytree(cdr_labeler_config_dir,  params.cdr_labeler_config_dir)
     shutil.copytree(vj_finder_config_dir,    params.vj_finder_config_dir)
 
-    params.output_config_file = os.path.join(params.output_config_dir, "config.info")
     if not os.path.exists(params.output_config_file):
         log.info("ERROR: Config file " + params.output_config_file + " was not found")
         sys.exit(1)
