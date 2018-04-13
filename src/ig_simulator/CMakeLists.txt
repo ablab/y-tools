@@ -35,12 +35,10 @@ add_library(ig_simulator_library STATIC
         clonal_trees/tree_creator/pool_manager.cpp
         clonal_trees/tree_creator/cartesian_tree.cpp
         clonal_trees/tree/tree.cpp
-        clonal_trees/forest/forest.cpp
         clonal_trees/tree_creator/tree_creator.cpp
         clonal_trees/tree_creator/tree_size_generator.cpp
         clonal_trees/tree_creator/shm_creator.cpp
-        clonal_trees/tree_creator/forest_creator.cpp
-        clonal_trees/tree_creator/forest_storage_creator.cpp
+        clonal_trees/tree_creator/derived_repertoire_creator.cpp
         clonal_trees/tree_creator/exporters.cpp
         clonal_trees/fast_stop_codon_checker/fast_stop_codon_checker.cpp
         base_repertoire/gene_chooser/custom_gene_chooser.cpp)

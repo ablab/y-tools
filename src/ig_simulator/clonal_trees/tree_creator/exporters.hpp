@@ -6,15 +6,14 @@
 
 #include <fstream>
 #include <clonal_trees/tree/tree.hpp>
-#include <clonal_trees/forest/forest.hpp>
 #include "ig_simulator_config.hpp"
+#include "derived_repertoire_creator.hpp"
 
 namespace ig_simulator {
 
-void TreeExporter(const Tree& tree, size_t forest_ind, size_t tree_ind, std::ostream& full, std::ostream& included);
-void ForestExporter(const Forest& forest, size_t forest_ind, std::ostream& full, std::ostream& included);
-void ForestStorageExporter(const ForestStorage& forest_storage, std::ostream& full, std::ostream& included);
+void TreeExporter(const Tree& tree, size_t tree_ind, std::ostream& full, std::ostream& included);
+void DerivedRepertoireExporter(const DerivedRepertoire& derived_repertoire, std::ostream& full, std::ostream& included);
 
-void EdgeListsExporters(const ForestStorage& forest_storage, const IgSimulatorConfig::IOParams::OutputParams& config);
+void EdgeListsExporters(const DerivedRepertoire& derived_repertoire, const IgSimulatorConfig::IOParams::OutputParams& config);
 
 } // End namespace ig_simulator

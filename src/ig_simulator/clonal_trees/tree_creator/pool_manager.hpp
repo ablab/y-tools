@@ -6,8 +6,8 @@
 
 #include <cstddef>
 #include "cartesian_tree.hpp"
-#include "simulation_routines.hpp"
 #include "ig_simulator_utils.hpp"
+#include "ig_simulator_config.hpp"
 
 namespace ig_simulator {
 
@@ -18,7 +18,7 @@ protected:
     size_t max_index;
 
 public:
-    AbstractPoolManager(double ret_prob):
+    explicit AbstractPoolManager(double ret_prob):
             pool(),
             ret_to_pool_distr(check_probability(ret_prob)),
             max_index(1)
@@ -26,10 +26,10 @@ public:
         pool.Insert(0, 1);
     }
 
-    AbstractPoolManager(const AbstractPoolManager&) = delete;
-    AbstractPoolManager(AbstractPoolManager&&) = delete;
     AbstractPoolManager& operator=(const AbstractPoolManager&) = delete;
     AbstractPoolManager& operator=(AbstractPoolManager&&) = delete;
+
+    static std::unique_ptr<AbstractPoolManager> CreatePoolManager(PoolManagerStrategy pool_manager_strategy, double ret_prob);
 
     size_t MaxIndex() const { return max_index; }
     void Erase(size_t index) {
@@ -46,7 +46,7 @@ using AbstractPoolManagerCPtr = std::unique_ptr<AbstractPoolManager>;
 
 class UniformPoolManager final : public AbstractPoolManager {
 public:
-    UniformPoolManager(double ret_prob):
+    explicit UniformPoolManager(double ret_prob):
         AbstractPoolManager(ret_prob)
     { }
 
@@ -55,7 +55,7 @@ public:
 
 class WideTreePoolManager final : public AbstractPoolManager {
 public:
-    WideTreePoolManager(double ret_prob):
+    explicit WideTreePoolManager(double ret_prob):
         AbstractPoolManager(ret_prob)
     { }
 
@@ -64,7 +64,7 @@ public:
 
 class DeepTreePoolManager final : public AbstractPoolManager {
 public:
-    DeepTreePoolManager(double ret_prob):
+    explicit DeepTreePoolManager(double ret_prob):
         AbstractPoolManager(ret_prob)
     { }
 

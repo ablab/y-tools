@@ -3,9 +3,22 @@
 //
 
 #include <limits>
+#include <ig_simulator_config.hpp>
 #include "pool_manager.hpp"
 
 namespace ig_simulator {
+
+std::unique_ptr<AbstractPoolManager>
+AbstractPoolManager::CreatePoolManager(const PoolManagerStrategy pool_manager_strategy, double ret_prob) {
+    if (pool_manager_strategy == PoolManagerStrategy::UniformPoolManager) {
+        return std::unique_ptr<AbstractPoolManager>(new UniformPoolManager(ret_prob));
+    } else if (pool_manager_strategy == PoolManagerStrategy::DeepTreePoolManager) {
+        return std::unique_ptr<AbstractPoolManager>(new DeepTreePoolManager(ret_prob));
+    } else if (pool_manager_strategy == PoolManagerStrategy::WideTreePoolManager) {
+        return std::unique_ptr<AbstractPoolManager>(new WideTreePoolManager(ret_prob));
+    }
+    VERIFY(false);
+}
 
 std::pair<size_t, bool> UniformPoolManager::GetIndex(size_t n_insert) {
     size_t raw_index = random_index(1, pool.Sum());

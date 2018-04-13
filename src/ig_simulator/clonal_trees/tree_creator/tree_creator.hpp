@@ -59,11 +59,7 @@ public:
     TreeCreator& operator=(const TreeCreator&) = delete;
     TreeCreator& operator=(TreeCreator&&) = delete;
 
-    template<class PoolManager>
-    Tree GenerateTree(const AbstractMetaroot* const root) const {
-        static_assert(std::is_base_of<AbstractPoolManager, PoolManager>::value,
-                      "Pool Manager should be derived from @class AbstractPoolManager");
-
+    Tree GenerateTree(const AbstractMetaroot* const root, const PoolManagerStrategy pool_manager_strategy) const {
         size_t tree_size = tree_size_generator->Generate();
         std::vector<Node> nodes;
         nodes.reserve(tree_size);
@@ -78,7 +74,7 @@ public:
             return Tree(root, std::move(nodes), std::move(sequences));
         }
 
-        PoolManager pool_manager(ret_prob);
+        auto pool_manager = AbstractPoolManager::CreatePoolManager(pool_manager_strategy, ret_prob);
 
         while(nodes.size() < tree_size) {
             size_t n_children = distr_n_children(MTSingleton::GetInstance()) + 1;
@@ -86,7 +82,7 @@ public:
 
             size_t parent_ind;
             bool stay;
-            std::tie(parent_ind, stay) = pool_manager.GetIndex(n_children);
+            std::tie(parent_ind, stay) = pool_manager->GetIndex(n_children);
 
             if (not stay) {
                 nodes[parent_ind].Exclude();
@@ -102,12 +98,12 @@ public:
 
                 if (FastStopCodonChecker::HasStopCodon(sequences.back(), root->CDRLabeling())) {
                     nodes.back().MakeNonProductive();
-                    pool_manager.Erase(pool_manager.MaxIndex() - n_children + i);
+                    pool_manager->Erase(pool_manager->MaxIndex() - n_children + i);
                 }
             }
-            if (pool_manager.Size() == 0) { break; } // All leafs are non-productive
+            if (pool_manager->Size() == 0) { break; } // All leafs are non-productive
         }
-        if (pool_manager.Size() != 0) { // Only when leafs all non-productive VERIFY should not be checked.
+        if (pool_manager->Size() != 0) { // Only when leafs all non-productive VERIFY should not be checked.
             VERIFY(nodes.size() == tree_size);
         }
         return Tree(root, std::move(nodes), std::move(sequences));

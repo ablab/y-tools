@@ -8,7 +8,6 @@
 #include <clonal_trees/tree_creator/exporters.hpp>
 #include "ig_simulator_launch.hpp"
 #include "base_repertoire/base_repertoire_simulator.hpp"
-#include "clonal_trees/tree_creator/forest_storage_creator.hpp"
 
 using namespace germline_utils;
 
@@ -63,47 +62,44 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
     return base_repertoire;
 }
 
-template<class PoolManager>
-ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_repertoire) const
-{
-    INFO("== Forest Storage generation starts ==");
+DerivedRepertoire IgSimulatorLaunch::__GetDerivedRepertoire(const BaseRepertoire &base_repertoire,
+                                                            const PoolManagerStrategy pool_manager_strategy) const {
+    INFO("== Derived repertoire generation starts ==");
     const auto& vjf_config = config_.simulation_params.base_repertoire_params.metaroot_simulation_params.
                              cdr_labeler_config.vj_finder_config;
-    ForestStorageCreator forest_storage_creator(vjf_config,
-                                                config_.simulation_params.clonal_tree_simulator_params);
-    auto forest_storage = forest_storage_creator.GenerateForest<PoolManager>(base_repertoire);
-    INFO("== Forest Storage generation ends ==");
 
-    INFO("== Forest Storage export starts ==");
+    DerivedRepertoireCreator derived_repertoire_creator(vjf_config,
+                                                        config_.simulation_params.clonal_tree_simulator_params);
+    auto derived_repertoire = derived_repertoire_creator.GenerateDerivedRepertoire(base_repertoire,
+                                                                                   pool_manager_strategy);
+    INFO("== Derived repertoire generation ends ==");
+
+    INFO("== Derived repertoire export starts ==");
     INFO("== Full and filtered pool export start");
     std::ofstream full, included;
     full.open(path::append_path(config_.io_params.output_params.output_dir,
                                 config_.io_params.output_params.full_pool));
     included.open(path::append_path(config_.io_params.output_params.output_dir,
                                     config_.io_params.output_params.filtered_pool));
-    ForestStorageExporter(forest_storage, full, included);
+    DerivedRepertoireExporter(derived_repertoire, full, included);
     full.close();
     included.close();
     INFO("== Full and filtered pool export ends");
 
-    INFO("== Edge lists export starts");
-    EdgeListsExporters(forest_storage, config_.io_params.output_params);
-    INFO("== Edge lists export ends");
-    INFO("== Forest Storage export ends ==");
-    return forest_storage;
+    if (!config_.io_params.output_params.trees_dir.empty()) {
+        INFO("'" << config_.io_params.output_params.trees_dir << "'")
+        INFO("== Edge lists export starts");
+        EdgeListsExporters(derived_repertoire, config_.io_params.output_params);
+        INFO("== Edge lists export ends");
+    }
+    INFO("== Derived repertoire export ends ==");
+    return derived_repertoire;
 }
 
-ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_repertoire) const
+DerivedRepertoire IgSimulatorLaunch::GetDerivedRepertoire(const BaseRepertoire &base_repertoire) const
 {
-    const auto& pool_manager_strategy = config_.simulation_params.clonal_tree_simulator_params.pool_manager_strategy;
-    if (pool_manager_strategy == PoolManagerStrategy::UniformPoolManager) {
-        return __GetForestStorage<UniformPoolManager>(base_repertoire);
-    } else if (pool_manager_strategy == PoolManagerStrategy::DeepTreePoolManager) {
-        return __GetForestStorage<DeepTreePoolManager>(base_repertoire);
-    } else if (pool_manager_strategy == PoolManagerStrategy::WideTreePoolManager) {
-        return __GetForestStorage<WideTreePoolManager>(base_repertoire);
-    }
-    VERIFY(false);
+    const auto pool_manager_strategy = config_.simulation_params.clonal_tree_simulator_params.pool_manager_strategy;
+    return __GetDerivedRepertoire(base_repertoire, pool_manager_strategy);
 }
 
 void IgSimulatorLaunch::Run() {
@@ -114,7 +110,7 @@ void IgSimulatorLaunch::Run() {
     std::vector<germline_utils::CustomGeneDatabase> db { GetDB(chain_type) };
 
     const BaseRepertoire base_repertoire = GetBaseRepertoire(chain_type, db);
-    const ForestStorage forest_storage = GetForestStorage(base_repertoire);
+    const DerivedRepertoire derived_repertoire = GetDerivedRepertoire(base_repertoire);
 
     INFO("== IgSimulator ends ==");
 }

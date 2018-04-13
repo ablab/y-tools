@@ -7,7 +7,7 @@
 #include "ig_simulator_config.hpp"
 #include "germline_utils/chain_type.hpp"
 #include "base_repertoire/base_repertoire.hpp"
-#include "clonal_trees/forest/forest.hpp"
+#include "clonal_trees/tree_creator/derived_repertoire_creator.hpp"
 
 namespace ig_simulator {
 
@@ -18,20 +18,18 @@ private:
 private:
     germline_utils::ChainType GetLaunchChainType() const;
 
-    std::vector<germline_utils::CustomGeneDatabase>
-    GetDB(const germline_utils::ChainType chain_type) const;
+    std::vector<germline_utils::CustomGeneDatabase> GetDB(const germline_utils::ChainType chain_type) const;
 
-    BaseRepertoire
-    GetBaseRepertoire(const germline_utils::ChainType chain_type,
-                      std::vector<germline_utils::CustomGeneDatabase>& db) const;
+    BaseRepertoire GetBaseRepertoire(const germline_utils::ChainType chain_type,
+                                     std::vector<germline_utils::CustomGeneDatabase>& db) const;
 
-    template<class PoolManager>
-    ForestStorage __GetForestStorage(const BaseRepertoire& base_repertoire) const;
+    DerivedRepertoire __GetDerivedRepertoire(const BaseRepertoire &base_repertoire,
+                                             const PoolManagerStrategy pool_manager_strategy) const;
 
-    ForestStorage GetForestStorage(const BaseRepertoire& base_repertoire) const;
+    DerivedRepertoire GetDerivedRepertoire(const BaseRepertoire &base_repertoire) const;
 
 public:
-    IgSimulatorLaunch(const IgSimulatorConfig &config) :
+    explicit IgSimulatorLaunch(const IgSimulatorConfig &config) :
         config_(config)
     { }
 
