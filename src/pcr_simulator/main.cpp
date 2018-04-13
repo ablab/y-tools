@@ -27,9 +27,9 @@ Options parse_options(int argc, const char* const* argv) {
             ("pcr-rate,r", po::value<double>(&simulationOptions.amplification_rate)->default_value(0.1),
              "probability for each molecule to be amplified on each PCR cycle (defaults to 0.1)")
             ("chimeras-rate,k", po::value<double>(&simulationOptions.chimeras_rate)->default_value(0.001),
-             "share of chimeric reads appering on each cycle (defaults to 0.001)")
+             "share of chimeric reads appearing on each cycle (defaults to 0.001)")
             ("output-limit,m", po::value<size_t>(&options.output_estimation_limit)->default_value(static_cast<size_t>(1e8)),
-             "the program will exit if expected number of reads exceeds this parameter (defaults to 100,000,000)")
+             "the program will exit if expected number of reads exceeds this parameter (defaults to 10,000,000)")
             ("barcode-position,b", po::value<size_t>(&simulationOptions.barcode_position)->default_value(3),
              "indicator of barcode position in the read, used for chimeras simulation. "
              "1 for barcode going with the left half, 2 for the right half, 3 for random choice (defaults to 3)")
