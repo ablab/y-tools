@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <boost/optional.hpp>
 #include <verify.hpp>
 #include <seqan/seq_io.h>
@@ -22,37 +23,41 @@ inline std::pair<std::string, std::string> split_by_dots(std::string str) {
 }
 
 template <typename T>
-T str_to_int(const char* str, char** p) {
-    **p = *str; // avoid warning
+T str_to_int(const std::string, size_t*) {
     VERIFY_MSG(false, "Implement me");
 }
 
 template <>
-inline unsigned long long str_to_int(const char* str, char** p) {
-    return strtoull(str, p, 10);
+inline unsigned long long str_to_int(const std::string str, size_t* p) {
+    return std::stoull(str, p);
 }
 
 template <>
-inline unsigned long str_to_int(const char* str, char** p) {
-    return strtoul(str, p, 10);
+inline unsigned long str_to_int(const std::string str, size_t* p) {
+    return std::stoul(str, p);
 }
 
 template <>
-inline long str_to_int(const char* str, char** p) {
-    return strtol(str, p, 10);
+inline unsigned int str_to_int(const std::string str, size_t* p) {
+    return static_cast<unsigned int>(std::stoul(str, p));
 }
 
 template <>
-inline long long str_to_int(const char* str, char** p) {
-    return strtoll(str, p, 10);
+inline long str_to_int(const std::string str, size_t* p) {
+    return std::stol(str, p);
+}
+
+template <>
+inline long long str_to_int(const std::string str, size_t* p) {
+    return std::stoll(str, p);
 }
 
 template <typename T>
 boost::optional<T> try_string_to_number(const std::string& str) {
     if (str.empty()) return {};
-    char* p;
-    const auto r = str_to_int<T>(str.c_str(), &p);
-    if (*p == 0) return r;
+    size_t p;
+    const auto r = str_to_int<T>(str, &p);
+    if (p == str.length()) return r;
     return boost::none;
 }
 
