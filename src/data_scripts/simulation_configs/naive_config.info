@@ -27,6 +27,9 @@ germline_params {
 }
 
 simulation_params {
+
+    random_seed     234098
+
     base_repertoire_params {
         metaroot_simulation_params {
             gene_chooser_params {

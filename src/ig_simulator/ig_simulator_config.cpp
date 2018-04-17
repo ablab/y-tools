@@ -3,10 +3,13 @@
 //
 
 #include "ig_simulator_config.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <config_common.hpp>
 
 namespace ig_simulator {
+
+const std::string IgSimulatorConfig::SimulationParams::RandomSeedPolicy::NO_RESET = "unset";
 
 // IOParams start
 void load(IgSimulatorConfig::IOParams::InputParams &input_params, boost::property_tree::ptree const &pt, bool) {
@@ -305,6 +308,14 @@ void load(IgSimulatorConfig::SimulationParams &simulation_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
+    const auto policy = pt.get<std::string>("random_seed");
+    if (policy == IgSimulatorConfig::SimulationParams::RandomSeedPolicy::NO_RESET) {
+        simulation_params.random_seed_policy.reset = false;
+        simulation_params.random_seed_policy.seed = 0;
+    } else {
+        simulation_params.random_seed_policy.reset = true;
+        simulation_params.random_seed_policy.seed = try_string_to_number<unsigned int>(policy).get();
+    }
     load(simulation_params.base_repertoire_params, pt, "base_repertoire_params");
     load(simulation_params.clonal_tree_simulator_params, pt, "clonal_tree_simulator_params");
 }

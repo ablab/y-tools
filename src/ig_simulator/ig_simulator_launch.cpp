@@ -102,8 +102,16 @@ DerivedRepertoire IgSimulatorLaunch::GetDerivedRepertoire(const BaseRepertoire &
     return __GetDerivedRepertoire(base_repertoire, pool_manager_strategy);
 }
 
+void IgSimulatorLaunch::Setup() const {
+    const auto& policy = config_.simulation_params.random_seed_policy;
+    if (policy.reset) {
+        MTSingleton::SetSeed(policy.seed);
+    }
+}
+
 void IgSimulatorLaunch::Run() {
-    // MTSingleton::SetSeed(1);
+    Setup();
+
     INFO("== IgSimulator starts ==");
 
     germline_utils::ChainType chain_type = GetLaunchChainType();

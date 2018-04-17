@@ -16,6 +16,8 @@ private:
     IgSimulatorConfig config_;
 
 private:
+    void Setup() const;
+
     germline_utils::ChainType GetLaunchChainType() const;
 
     std::vector<germline_utils::CustomGeneDatabase> GetDB(const germline_utils::ChainType chain_type) const;

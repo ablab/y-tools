@@ -35,6 +35,14 @@ struct IgSimulatorConfig {
 
 
     struct SimulationParams {
+        struct RandomSeedPolicy {
+            static const std::string NO_RESET;
+
+            // if reset is true set seed value to seed, else don't touch seed value
+            bool reset;
+            unsigned int seed;
+        };
+
         struct BaseRepertoireParams {
             struct MetarootSimulationParams {
                 struct GeneChooserParams {
@@ -156,6 +164,7 @@ struct IgSimulatorConfig {
             SHM_CreatorParams shm_creator_params;
         };
 
+        RandomSeedPolicy random_seed_policy;
         BaseRepertoireParams base_repertoire_params;
         ClonalTreeSimulatorParams clonal_tree_simulator_params;
     };
