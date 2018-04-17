@@ -9,13 +9,13 @@
 namespace ig_simulator {
 
 // This code is written after consulting with @eodus
-template<class STLRandomGenerator, class Sseq=unsigned int>
+template<class STLRandomGenerator, class Sseq = unsigned int>
 class RandomGeneratorSingleton {
 private:
     STLRandomGenerator generator_;
 
 private:
-    RandomGeneratorSingleton(Sseq seed=std::random_device()()) :
+    RandomGeneratorSingleton(Sseq seed = std::random_device()()) :
         generator_(seed)
     { }
 
@@ -30,6 +30,6 @@ public:
     }
 };
 
-using MTSingleton = RandomGeneratorSingleton<std::mt19937>;
+using MTSingleton = RandomGeneratorSingleton<std::mt19937_64>;
 
 } // End namespace ig_simulator
