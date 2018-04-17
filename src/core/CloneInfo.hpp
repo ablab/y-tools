@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/optional/optional.hpp>
-#include "../ig_tools/utils/string_tools.hpp"
 
 struct CloneInfo {
     std::size_t id;

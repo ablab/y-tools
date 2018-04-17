@@ -1,4 +1,5 @@
 #include "CloneInfo.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 boost::optional<CloneInfo> CloneInfo::TryParse(const std::string& name) {
     const std::vector<std::string> parts = split(name, "___");
