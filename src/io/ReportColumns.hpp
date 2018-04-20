@@ -2,6 +2,8 @@
 
 #include <string>
 #include <vector>
+#include <boost/algorithm/string/trim.hpp>
+#include <logger/logger.hpp>
 #include "../ig_tools/utils/string_tools.hpp"
 
 namespace ReportColumns {
