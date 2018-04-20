@@ -11,6 +11,6 @@ add_library(input STATIC
             path_helper.cpp
             copy_file.cpp
             library.cpp
-            ReportColumns.hpp)
+            ReportColumns.cpp)
 
 target_link_libraries(input yaml-cpp)
