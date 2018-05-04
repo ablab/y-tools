@@ -11,6 +11,9 @@ add_library(input STATIC
             path_helper.cpp
             copy_file.cpp
             library.cpp
-            ReportColumns.cpp)
+            ReportColumns.cpp
+            Record.cpp
+            RecordSet.cpp
+            RecordIO.cpp)
 
 target_link_libraries(input yaml-cpp)

@@ -60,3 +60,6 @@ target_link_libraries(test_vj_finder vj_finder_library)
 
 make_test(test_ig_simulator test_ig_simulator.cpp)
 target_link_libraries(test_ig_simulator ig_simulator_library)
+
+make_test(test_sequence_io test_sequence_io.cpp)
+target_link_libraries(test_sequence_io input)
