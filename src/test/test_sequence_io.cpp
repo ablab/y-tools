@@ -4,7 +4,7 @@
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../io/RecordIO.hpp"
 
-const std::string TEST_DATA_PATH = "test_dataset/sequence_io_test_data.fastq";
+const std::string TEST_TAGGED_DATA_PATH = "test_dataset/sequence_io_tagged_test_data.fastq";
 
 void create_console_logger() {
     using namespace logging;
@@ -59,8 +59,8 @@ TEST_F(SequenceIOTest, CheckGetAbsentFieldFromRecord) {
 TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
     using namespace YTools::IO;
 
-    path::CheckFileExistenceFATAL(TEST_DATA_PATH);
-    std::ifstream test_data_stream(TEST_DATA_PATH);
+    path::CheckFileExistenceFATAL(TEST_TAGGED_DATA_PATH);
+    std::ifstream test_data_stream(TEST_TAGGED_DATA_PATH);
 
     IgrecClusterSizeIO seq_io;
     const auto& records = seq_io.ReadRecords(test_data_stream);
