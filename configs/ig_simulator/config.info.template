@@ -28,8 +28,8 @@ germline_params {
 
 simulation_params {
 
-    random_seed     unset
     ;can be either integer or 'unset' meaning either random seed value will be used or the value calling program is using
+    random_seed     unset
 
     base_repertoire_params {
         metaroot_simulation_params {
