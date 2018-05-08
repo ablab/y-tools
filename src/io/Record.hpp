@@ -107,11 +107,13 @@ namespace YTools{
         };
 
         static RecordField<seqan::Dna5String> SEQUENCE("sequence");
+        static RecordField<std::string> BARCODE("barcode");
         static RecordField<seqan::CharString> QUALITY("quality");
+        static RecordField<seqan::CharString> BARCODE_QUALITY("barcode_quality");
         static RecordField<std::string> CLUSTER_ID("cluster_id");
         static RecordField<size_t> CLUSTER_SIZE("cluster_size");
 
-        static std::vector<RecordFieldBase> PREDEFINED_FIELDS { SEQUENCE, QUALITY, CLUSTER_ID, CLUSTER_SIZE };
+        static std::vector<RecordFieldBase> PREDEFINED_FIELDS { SEQUENCE, BARCODE, QUALITY, BARCODE_QUALITY, CLUSTER_ID, CLUSTER_SIZE };
 
     }
 }
