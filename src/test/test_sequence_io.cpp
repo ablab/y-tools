@@ -31,9 +31,9 @@ TEST_F(SequenceIOTest, CheckRecordCreation) {
     ASSERT_EQ("string_value", record1.GetField(string_field));
 
     auto record2 = internal::Record::Create()
-            .Set(SEQUENCE, seqan::Dna5String("ACGT"))
-            .Set(CLUSTER_ID, static_cast<std::string>("my_cluster"))
-            .Set(CLUSTER_SIZE, 100500ul).Build();
+            .Set(SEQUENCE, "ACGT")
+            .Set(CLUSTER_ID, "my_cluster")
+            .Set(CLUSTER_SIZE, 100500).Build();
 
     ASSERT_EQ(3, record2.GetFieldNames().size());
     ASSERT_EQ("ACGT", seqan_string_to_string(record2.GetField<seqan::Dna5String>(SEQUENCE.GetName())));
@@ -78,7 +78,7 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
 
     std::stringstream serialized_stream;
     seq_io.WriteRecords(serialized_stream, records);
-    auto ifs = std::ifstream(TEST_DATA_PATH);
+    auto ifs = std::ifstream(TEST_TAGGED_DATA_PATH);
     std::string test_file_content(std::istreambuf_iterator<char>(ifs), {});
     ASSERT_EQ(test_file_content, serialized_stream.str());
 }

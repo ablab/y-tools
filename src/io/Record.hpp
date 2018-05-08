@@ -27,7 +27,7 @@ namespace YTools{
                 RecordHelper& Set(const RecordField<T>& field, const S& value) {
                     static_assert(std::is_assignable<T&, S>::value);
 
-                    return Set(field.GetName(), value);
+                    return Set(field.GetName(), static_cast<T>(value));
                 }
 
                 Record Build();
