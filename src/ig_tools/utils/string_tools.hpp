@@ -98,6 +98,24 @@ inline std::vector<std::string> split(const std::string &s, const std::string &s
     return ans;
 }
 
+inline std::vector<std::string> split_ignore_case(const std::string &s, const std::string &separator) {
+    std::vector<std::string> ans;
+    size_t sep_len = separator.length();
+    std::string s_lower = s;
+    std::transform(s_lower.begin(), s_lower.end(), s_lower.begin(), ::tolower);
+    std::string separator_lower = separator;
+    std::transform(separator_lower.begin(), separator_lower.end(), separator_lower.begin(), ::tolower);
+    size_t found = s_lower.find(separator_lower);
+    size_t previous = 0;
+    while (found != std::string::npos) {
+        ans.push_back(s.substr(previous, found - previous));
+        previous = found + sep_len;
+        found = s_lower.find(separator_lower, found + sep_len);
+    }
+    ans.push_back(s.substr(previous));
+    return ans;
+}
+
 inline void string_to_khashes(std::string &s, size_t k, std::vector<size_t> &ans) {
     size_t a = 239;
     size_t p = 1;

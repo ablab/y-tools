@@ -62,7 +62,7 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
     path::CheckFileExistenceFATAL(TEST_TAGGED_DATA_PATH);
     std::ifstream test_data_stream(TEST_TAGGED_DATA_PATH);
 
-    IgrecClusterSizeIO seq_io;
+    IgrecClusterSizeRecordIO seq_io;
     const auto& records = seq_io.ReadRecords(test_data_stream);
     ASSERT_EQ(2, records.size());
     ASSERT_EQ(4, records[0].GetFieldNames().size());
@@ -81,4 +81,33 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
     auto ifs = std::ifstream(TEST_TAGGED_DATA_PATH);
     std::string test_file_content(std::istreambuf_iterator<char>(ifs), {});
     ASSERT_EQ(test_file_content, serialized_stream.str());
+
+    std::stringstream fafq("@cluster___0___size___24\n"
+                           "ACGTACGTACGTACGTACGTA\n"
+                           "+\n"
+                           "ACGT!\"#$%&xyz{|}~ghij\n"
+                           ">cluster___my_cluster___size___3\n"
+                           "ACGTACGT");
+    ASSERT_ANY_THROW(seq_io.ReadRecords(fafq));
+}
+
+TEST_F(SequenceIOTest, CheckBarcodeInMetaRecordReader) {
+    using namespace YTools::IO;
+
+    std::string test_content = ">93844_mutated_from_2966_UMI:CACACGCAACCAATA\n"
+                          "CAGGTGCAGCTGGTGGAGTCTG\n"
+                          ">301967_mutated_from_56475_UMI:GCAGGTGCGTTAAAG:!&^$%!^*!@^%!^%\n"
+                          "CAGGTTCAGCTGGTGCAGTCTG";
+    std::stringstream test_data_stream(test_content);
+
+    BarcodeInMetaRecordReader seq_io;
+    const auto& records = seq_io.ReadRecords(test_data_stream);
+    ASSERT_EQ(2, records.size());
+    ASSERT_EQ(2, records[0].GetFieldNames().size());
+    ASSERT_EQ("CAGGTGCAGCTGGTGGAGTCTG", seqan_string_to_string(records[0].GetField(SEQUENCE)));
+    ASSERT_EQ("CACACGCAACCAATA", records[0].GetField(BARCODE));
+    ASSERT_EQ(3, records[1].GetFieldNames().size());
+    ASSERT_EQ("CAGGTTCAGCTGGTGCAGTCTG", seqan_string_to_string(records[1].GetField(SEQUENCE)));
+    ASSERT_EQ("GCAGGTGCGTTAAAG", records[1].GetField(BARCODE));
+    ASSERT_EQ("!&^$%!^*!@^%!^%", seqan_string_to_string(records[1].GetField(BARCODE_QUALITY)));
 }
