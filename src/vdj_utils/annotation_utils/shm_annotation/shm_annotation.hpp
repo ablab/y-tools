@@ -54,6 +54,7 @@ namespace annotation_utils {
         bool operator!=(const SHM& shm) const;
 
         void AppendInMixcrFormat(std::ostream& out) const;
+        void AppendInModernFormat(std::ostream& out) const;
     };
 
     bool operator<(const SHM &left, const SHM &right);
@@ -104,6 +105,8 @@ namespace annotation_utils {
          * See <a href="http://mixcr.readthedocs.io/en/latest/appendix.html#ref-encoding">MiXCR documentation</a> for description.
          */
         void AppendInMixcrFormat(std::ostream& out) const;
+
+        void AppendInModernFormat(std::ostream& out) const;
     };
 
     std::ostream& operator<<(std::ostream &out, const GeneSegmentSHMs& shms);

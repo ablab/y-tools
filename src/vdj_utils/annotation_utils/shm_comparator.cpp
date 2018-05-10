@@ -83,8 +83,46 @@ namespace annotation_utils {
         }
         return true;
     }
-    bool SHMComparator::SHMsInsertionBlocksAreEqual(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2)
-    {
+    std::vector<std::pair<size_t, size_t>> SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+            GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
+        std::vector<std::pair<size_t, size_t>> res;
+        size_t index2 = 0;
+        for (auto it1 = shms1.cbegin(); it1 != shms1.cend(); it1++) {
+            bool shm_found = false;
+            if (it1->shm_type != SHMType::InsertionSHM) {
+                for(size_t i = index2; i < shms2.size(); i++) {
+                    if (*it1 == shms2[i]) {
+                        shm_found = true;
+                        index2 = i + 1;
+                        break;
+                    }
+                };
+                if(!shm_found) {
+                    res.push_back({it1 - shms1.cbegin(), 1});
+                }
+                continue;
+            }
+            auto shm1_block = get_following_insertions_block(it1, shms1.cend());
+            for(size_t i = index2; i < shms2.size(); i++) {
+                if (*it1 == shms2[i]) {
+                    auto shm2_block = get_following_insertions_block(shms2.cbegin() + i, shms2.cend());
+                    if (insertion_blocks_are_equal(shm1_block, shm2_block)) {
+                        shm_found = true;
+                        it1 += shm1_block.size() - 1;
+                        index2 = i + shm2_block.size();
+                        break;
+                    }
+                    res.push_back({it1 - shms1.cbegin(), shm1_block.size()});
+                }
+            }
+            if(!shm_found && res.back().first != it1 - shms1.cbegin()) {
+                res.push_back({it1 - shms1.cbegin(), shm1_block.size()});
+            }
+        }
+        return res;
+    }
+
+    bool SHMComparator::SHMsInsertionBlocksAreEqual(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
         return AllSHMs1InsertionBlocksArePresentedInSHMs2(shms1, shms2) &&
                AllSHMs1InsertionBlocksArePresentedInSHMs2(shms2, shms1);
     }

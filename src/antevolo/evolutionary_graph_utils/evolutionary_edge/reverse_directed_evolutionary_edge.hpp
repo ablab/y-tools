@@ -49,6 +49,33 @@ namespace  antevolo {
 
         size_t NumSharedShms() const override { return num_intersected_shms; }
 
+        virtual void appendAddedVSHMsInModernFormat(std::ostream& out) const {
+            auto v_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    src_clone->VSHMs(),
+                    dst_clone->VSHMs());
+            for (auto p : v_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "-";
+                    auto shm_it = src_clone->VSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+        }
+        virtual void appendAddedJSHMsInModernFormat(std::ostream& out) const {
+            auto j_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    src_clone->JSHMs(),
+                    dst_clone->JSHMs());
+            for (auto p : j_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "-";
+                    auto shm_it = src_clone->JSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+        }
+
     };
 
 }

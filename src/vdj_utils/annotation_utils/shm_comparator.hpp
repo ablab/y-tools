@@ -11,6 +11,9 @@ namespace annotation_utils {
 
         static bool AllSHMs1InsertionBlocksArePresentedInSHMs2(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
 
+        static std::vector<std::pair<size_t, size_t>> SHMs1BlocksNotPresentInSHMs2(
+                GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
+
         static bool SHMsInsertionBlocksAreEqual(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
 
         static size_t GetNumberOfIntersections(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);

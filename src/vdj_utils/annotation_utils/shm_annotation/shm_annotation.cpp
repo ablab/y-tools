@@ -109,10 +109,33 @@ namespace annotation_utils {
             out << read_nucl;
         }
     }
+    void SHM::AppendInModernFormat(std::ostream& out) const {
+        out << shm_type;
+        out << " ";
+        out << gene_nucl_pos;
+        out << " ";
+        if (shm_type != InsertionSHM) {
+            out << gene_nucl;
+        } else {
+            out << "_";
+        }
+        out << "->";
+        if (shm_type != DeletionSHM) {
+            out << read_nucl;
+        } else {
+            out << "_";
+        }
+    }
 
     void GeneSegmentSHMs::AppendInMixcrFormat(std::ostream& out) const {
         for (auto shm_it = cbegin(); shm_it != cend(); ++ shm_it) {
             shm_it->AppendInMixcrFormat(out);
+        }
+    }
+    void GeneSegmentSHMs::AppendInModernFormat(std::ostream& out) const {
+        for (auto shm_it = cbegin(); shm_it != cend(); ++ shm_it) {
+            shm_it->AppendInModernFormat(out);
+            out << ";";
         }
     }
 }

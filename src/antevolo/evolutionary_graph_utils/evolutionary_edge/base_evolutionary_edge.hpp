@@ -96,7 +96,17 @@ namespace  antevolo {
 
         virtual size_t Length() const { return size_t(-1); }
 
+        virtual void appendAddedSHMsInModernFormat(std::ostream& out) const {
+            appendAddedVSHMsInModernFormat(out);
+            out << "\t";
+            appendAddedJSHMsInModernFormat(out);
+        }
+
         virtual ~BaseEvolutionaryEdge() {}
+
+    protected:
+        virtual void appendAddedVSHMsInModernFormat(std::ostream& out) const { out << " "; }
+        virtual void appendAddedJSHMsInModernFormat(std::ostream& out) const { out << " "; }
 
 //        bool operator==(const EvolutionaryEdge &edge) const {
 //            return src_clone == edge.src_clone and dst_clone == edge.dst_clone and edge_type == edge.edge_type;

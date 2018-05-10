@@ -55,6 +55,55 @@ namespace  antevolo {
 
         size_t NumSharedShms() const override { return num_intersected_shms_; }
 
+        virtual void appendAddedVSHMsInModernFormat(std::ostream& out) const {
+            auto v_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    dst_clone->VSHMs(),
+                    src_clone->VSHMs());
+            for (auto p : v_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "+";
+                    auto shm_it = dst_clone->VSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+            auto reverse_v_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    src_clone->VSHMs(),
+                    dst_clone->VSHMs());
+            for (auto p : reverse_v_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "-";
+                    auto shm_it = src_clone->VSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+        }
+        virtual void appendAddedJSHMsInModernFormat(std::ostream& out) const {
+            auto j_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    dst_clone->JSHMs(),
+                    src_clone->JSHMs());
+            for (auto p : j_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "+";
+                    auto shm_it = dst_clone->JSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+            auto reverse_j_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
+                    src_clone->JSHMs(),
+                    dst_clone->JSHMs());
+            for (auto p : j_blocks) {
+                for (size_t i = 0; i < p.second; ++i) {
+                    out << "-";
+                    auto shm_it = src_clone->JSHMs().cbegin() + p.first + i;
+                    shm_it->AppendInModernFormat(out);
+                    out << ";";
+                }
+            }
+        }
+
     };
 
 }
