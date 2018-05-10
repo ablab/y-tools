@@ -81,7 +81,7 @@ DerivedRepertoire IgSimulatorLaunch::__GetDerivedRepertoire(const BaseRepertoire
                                 config_.io_params.output_params.full_pool));
     included.open(path::append_path(config_.io_params.output_params.output_dir,
                                     config_.io_params.output_params.filtered_pool));
-    DerivedRepertoireExporter(derived_repertoire, full, included);
+    ExportDerivedRepertoire(derived_repertoire, full, included);
     full.close();
     included.close();
     INFO("== Full and filtered pool export ends");
@@ -89,7 +89,7 @@ DerivedRepertoire IgSimulatorLaunch::__GetDerivedRepertoire(const BaseRepertoire
     if (!config_.io_params.output_params.trees_dir.empty()) {
         INFO("'" << config_.io_params.output_params.trees_dir << "'")
         INFO("== Edge lists export starts");
-        EdgeListsExporters(derived_repertoire, config_.io_params.output_params);
+        ExportEdgeLists(derived_repertoire, config_.io_params.output_params);
         INFO("== Edge lists export ends");
     }
     INFO("== Derived repertoire export ends ==");

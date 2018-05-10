@@ -6,8 +6,7 @@
 
 namespace ig_simulator {
 
-void TreeExporter(const Tree& tree, size_t tree_ind,
-                         std::ostream& full, std::ostream& included)
+void ExportTree(const Tree& tree, size_t tree_ind, std::ostream& full, std::ostream& included)
 {
     const auto& sequences = tree.Sequences();
     for (size_t i = 0; i < sequences.size(); ++i) {
@@ -21,13 +20,13 @@ void TreeExporter(const Tree& tree, size_t tree_ind,
     }
 }
 
-void DerivedRepertoireExporter(const DerivedRepertoire& derived_repertoire, std::ostream& full, std::ostream& included) {
+void ExportDerivedRepertoire(const DerivedRepertoire& derived_repertoire, std::ostream& full, std::ostream& included) {
     for (size_t i = 0; i < derived_repertoire.size(); ++i) {
-        TreeExporter(derived_repertoire[i], i, full, included);
+        ExportTree(derived_repertoire[i], i, full, included);
     }
 }
 
-void EdgeListsExporters(const DerivedRepertoire& derived_repertoire, const IgSimulatorConfig::IOParams::OutputParams& config) {
+void ExportEdgeLists(const DerivedRepertoire& derived_repertoire, const IgSimulatorConfig::IOParams::OutputParams& config) {
     std::string path = path::append_path(config.output_dir, config.trees_dir);
     path::make_dir(path);
     for (size_t i = 0; i < derived_repertoire.size(); ++i) {
