@@ -4,7 +4,7 @@
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../io/RecordIO.hpp"
 
-const auto TEST_TAGGED_DATA_PATH = "test_dataset/sequence_io_tagged_test_data.fastq";
+const auto TEST_TAGGED_DATA_PATH = std::string("test_dataset/sequence_io_tagged_test_data.fastq").c_str();
 
 void create_console_logger() {
     using namespace logging;
