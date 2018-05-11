@@ -4,7 +4,7 @@
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../io/RecordIO.hpp"
 
-const auto TEST_TAGGED_DATA_PATH = std::string("test_dataset/sequence_io_tagged_test_data.fastq").c_str();
+const std::string TEST_TAGGED_DATA_PATH = "test_dataset/sequence_io_tagged_test_data.fastq";
 
 void create_console_logger() {
     using namespace logging;
@@ -60,7 +60,7 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
     using namespace YTools::IO;
 
     path::CheckFileExistenceFATAL(TEST_TAGGED_DATA_PATH);
-    std::ifstream test_data_stream(TEST_TAGGED_DATA_PATH);
+    std::ifstream test_data_stream(TEST_TAGGED_DATA_PATH.c_str());
 
     IgrecClusterSizeRecordIO seq_io;
     const auto& records = seq_io.ReadRecords(test_data_stream);
@@ -78,7 +78,7 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
 
     std::stringstream serialized_stream;
     seq_io.WriteRecords(serialized_stream, records);
-    auto ifs = std::ifstream(TEST_TAGGED_DATA_PATH);
+    auto ifs = std::ifstream(TEST_TAGGED_DATA_PATH.c_str());
     std::string test_file_content(std::istreambuf_iterator<char>(ifs), {});
     ASSERT_EQ(test_file_content, serialized_stream.str());
 
