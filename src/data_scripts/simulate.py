@@ -14,7 +14,7 @@ IG_SIMULATOR_PATH = os.path.join(ROOT_PATH, "ig_simulator.py")
 PCR_SIMULATOR_PATH = os.path.join(BIN_PATH, "simulate_barcoded")
 
 METAROOTS_BY_STRATEGY = {
-    "naive": "100000",
+    "naive": "20000",
     "plasma": "100",
 }
 
@@ -34,32 +34,54 @@ def simulate(output_dir, strategy_name):
                            "--config", os.path.join(CONFIG_PATHS, strategy_name + "_config.info"),
                            "--output", simulation_output_dir,
                            "-n", METAROOTS_BY_STRATEGY[strategy_name]])
+    simulated_reads = os.path.join(simulation_output_dir, "filtered_pool.fasta")
 
-    pcr_output_dir = os.path.join(strategy_output_dir, "pcr")
-    print PCR_SIMULATOR_PATH
-    pcr_input = os.path.join(simulation_output_dir, "filtered_pool.fasta")
+    simulate_with_pcr(simulated_reads, strategy_name, strategy_output_dir)
+
+    simulate_no_pcr(simulated_reads, simulation_output_dir, strategy_name, strategy_output_dir)
+
+
+def simulate_no_pcr(simulated_reads, simulation_output_dir, strategy_name, strategy_output_dir):
+    # all simulations without PCR should have all reads repeated several times (5 at least)
+    # replacing with zero rate PCR now
+    pcr_output_dir = os.path.join(strategy_output_dir, "pcr0")
     subprocess.call([PCR_SIMULATOR_PATH,
-                     "--input-file", pcr_input,
+                     "--input-file", simulated_reads,
+                     "--output-dir", pcr_output_dir,
+                     "--pcr-error1", "0.0",
+                     "--pcr-error2", "0.0", ])
+    no_pcr_dir = os.path.join(strategy_output_dir, strategy_name + "_no_pcr")
+    prepare_test_input(
+        target_dir = no_pcr_dir,
+        reads_path = os.path.join(pcr_output_dir, "amplified.fasta"),
+        repertoire_path = simulated_reads,
+        rcm_file = os.path.join(pcr_output_dir, "amplified_to_orig.rcm")
+    )
+
+    # id_rcm_file = os.path.join(simulation_output_dir, "identity.rcm")
+    # generate_identity_rcm(id_rcm_file, simulated_reads)
+    # no_pcr_dir = os.path.join(strategy_output_dir, strategy_name + "_no_pcr")
+    # prepare_test_input(
+    #     no_pcr_dir,
+    #     simulated_reads,
+    #     simulated_reads,
+    #     id_rcm_file
+    # )
+
+
+def simulate_with_pcr(simulated_reads, strategy_name, strategy_output_dir):
+    pcr_output_dir = os.path.join(strategy_output_dir, "pcr")
+    subprocess.call([PCR_SIMULATOR_PATH,
+                     "--input-file", simulated_reads,
                      "--output-dir", pcr_output_dir,
                      "--pcr-error1", "0.003",
                      "--pcr-error2", "0.003", ])
-
     pcr_dir = os.path.join(strategy_output_dir, strategy_name + "_with_pcr")
     prepare_test_input(
-        pcr_dir,
-        os.path.join(pcr_output_dir, "amplified.fasta"),
-        pcr_input,
-        os.path.join(pcr_output_dir, "amplified_to_orig.rcm")
-    )
-
-    id_rcm_file = os.path.join(simulation_output_dir, "identity.rcm")
-    generate_identity_rcm(id_rcm_file, pcr_input)
-    no_pcr_dir = os.path.join(strategy_output_dir, strategy_name + "_no_pcr")
-    prepare_test_input(
-        no_pcr_dir,
-        pcr_input,
-        pcr_input,
-        id_rcm_file
+        target_dir = pcr_dir,
+        reads_path = os.path.join(pcr_output_dir, "amplified.fasta"),
+        repertoire_path = simulated_reads,
+        rcm_file = os.path.join(pcr_output_dir, "amplified_to_orig.rcm")
     )
 
 
