@@ -78,7 +78,7 @@ TEST_F(SequenceIOTest, CheckIgrecOldClusterSizeIO) {
 
     std::stringstream serialized_stream;
     seq_io.WriteRecords(serialized_stream, records);
-    auto ifs = std::ifstream(TEST_TAGGED_DATA_PATH.c_str());
+    std::ifstream ifs(TEST_TAGGED_DATA_PATH.c_str());
     std::string test_file_content(std::istreambuf_iterator<char>(ifs), {});
     ASSERT_EQ(test_file_content, serialized_stream.str());
 
