@@ -25,7 +25,7 @@ namespace YTools{
 
                 template <typename T, typename S>
                 RecordHelper& Set(const RecordField<T>& field, const S& value) {
-                    static_assert(std::is_assignable<T&, S>::value);
+                    static_assert(std::is_assignable<T&, S>::value, "Cannot assign value to the field");
 
                     return Set(field.GetName(), static_cast<T>(value));
                 }
