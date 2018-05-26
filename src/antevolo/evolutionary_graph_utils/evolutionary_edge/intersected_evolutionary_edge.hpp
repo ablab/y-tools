@@ -84,6 +84,7 @@ namespace  antevolo {
                     dst_clone->JSHMs(),
                     src_clone->JSHMs());
             for (auto p : j_blocks) {
+                VERIFY(p.first + p.second <= dst_clone->JSHMs().size());
                 for (size_t i = 0; i < p.second; ++i) {
                     out << "+";
                     auto shm_it = dst_clone->JSHMs().cbegin() + p.first + i;
@@ -94,7 +95,8 @@ namespace  antevolo {
             auto reverse_j_blocks = annotation_utils::SHMComparator::SHMs1BlocksNotPresentInSHMs2(
                     src_clone->JSHMs(),
                     dst_clone->JSHMs());
-            for (auto p : j_blocks) {
+            for (auto p : reverse_j_blocks) {
+                VERIFY(p.first + p.second <= src_clone->JSHMs().size());
                 for (size_t i = 0; i < p.second; ++i) {
                     out << "-";
                     auto shm_it = src_clone->JSHMs().cbegin() + p.first + i;
