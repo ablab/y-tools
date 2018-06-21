@@ -26,10 +26,14 @@ def download_and_unpack_sra_list(csv_file, destination):
         subprocess.check_call(["fastq-dump", "--split-files", dataset_sra_file, "--gzip"], cwd = destination)
         fastq_dump_out = os.path.join(destination, dataset_id + "_1.fastq.gz")
         check_file_existence(fastq_dump_out)
-        fastq_file = os.path.join(destination, dataset_id + ".fastq.gz")
-        os.rename(fastq_dump_out, fastq_file)
+        fastq_dump_out_second = os.path.join(destination, dataset_id + "_2.fastq.gz")
+        if file_exists(fastq_dump_out_second):
+            print "Result written to", fastq_dump_out, fastq_dump_out_second
+        else:
+            fastq_file = os.path.join(destination, dataset_id + ".fastq.gz")
+            os.rename(fastq_dump_out, fastq_file)
+            print "Result written to", fastq_file
         os.remove(dataset_sra_file)
-        print "Result written to", fastq_dump_out
         sys.stdout.flush()
 
 
@@ -47,7 +51,12 @@ def get_dataset_id_column(line):
     return line.split(CSV_DELIMITER).index(DATASET_ID_COLUMN_NAME)
 
 
-def check_file_existence(filename, message="", log=None, dipspades=False):
+def file_exists(filename):
+    filename = os.path.abspath(filename)
+    return os.path.isfile(filename)
+
+
+def check_file_existence(filename, message=""):
     filename = os.path.abspath(filename)
     if not os.path.isfile(filename):
         print "file not found: %s (%s)" % (filename, message)
