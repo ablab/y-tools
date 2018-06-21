@@ -104,7 +104,8 @@ namespace antevolo {
         out << "Src_id\tDst_id\tSrc_clone\tDst_clone\tNum_Src_SHMs\tNum_Dst_SHMs\tEdge_type\t";
         out << "Num_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\t";
         out << "Src_productive\tDst_productive\tSynonymous\t";
-        out << "Src_CDR3\tDst_CDR3\n";
+        out << "Src_CDR3\tDst_CDR3\t";
+        out << "V_shms\tJ_shms\n";
         for(auto it = tree.cbegin(); it != tree.cend(); it++) {
             WriteEdge(*it, out);
             std::string src_CDR3_string;
@@ -119,7 +120,9 @@ namespace antevolo {
             for (size_t pos = 0; pos < dst_CDR3_length; ++pos) {
                 dst_CDR3_string.push_back(dst_CDR3[pos]);
             }
-            out << "\t" << src_CDR3_string << "\t" << dst_CDR3_string << std::endl;
+            out << "\t" << src_CDR3_string << "\t" << dst_CDR3_string << "\t";
+            (*it)->appendAddedSHMsInModernFormat(out);
+            out << std::endl;
         }
         out.close();
     }
@@ -128,7 +131,8 @@ namespace antevolo {
         const auto& clone_set = tree.GetCloneSet();
         std::string output_fname = tree.GetTreeOutputFname(output_dir);
         std::ofstream out(output_fname);
-        out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\tSize\tFake\n";
+        out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\tSize\tFake\t";
+        out << "V_shms\tJ_shms\n";
         for (auto it = tree.c_vertex_begin(); it != tree.c_vertex_end(); it++) {
             auto const& clone = clone_set[*it];
             size_t ORF = clone.ORF();
@@ -143,15 +147,23 @@ namespace antevolo {
                 clone_AA_string.push_back(clone_AA_seq[i]);
             }
 
-            //assert((static_cast<int>(start_pos) - static_cast<int>(ORF)) % 3 == 0);
-            //assert((static_cast<int>(end_pos) + 1 - static_cast<int>(ORF)) % 3 == 0);
+            //VERIFY((static_cast<int>(start_pos) - static_cast<int>(ORF)) % 3 == 0);
+            //VERIFY((static_cast<int>(end_pos) + 1 - static_cast<int>(ORF)) % 3 == 0);
             char left_CDR3_anchor_AA = clone_AA_string[(start_pos - ORF) / 3 - 1];
             char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - ORF) / 3];
+
+            std::stringstream ss;
+            clone.VSHMs().AppendInModernFormat(ss);
+            auto v_shms_string = ss.str();
+            ss = std::stringstream();
+            clone.JSHMs().AppendInModernFormat(ss);
+            auto j_shms_string = ss.str();
+
 
             out << clone.Read().id << "\t" << clone.Read().name << "\t" << clone.Productive()
                 << "\t" << clone_AA_string << "\t" << ORF << "\t"
                 << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\t" << clone.Size()
-                << "\t" << tree.GetCloneSet().IsFake(*it) << "\n";
+                << "\t" << tree.GetCloneSet().IsFake(*it) << "\t" << v_shms_string << "\t" << j_shms_string << "\n";
 
         }
         out.close();
@@ -199,4 +211,15 @@ namespace antevolo {
         }
         out.close();
     }
+
+//    std::string AntEvoloOutputWriter::GetShmStringForClone(const annotation_utils::AnnotatedClone& clone) {
+//
+//    }
+//
+//    std::string AntEvoloOutputWriter::ShmToString(const annotation_utils::AnnotatedClone& clone) {
+//        auto shm = *clone.VSHMs().cbegin();
+//        std::stringstream ss;
+//        shm.AppendInMixcrFormat(ss);
+//        return ss.str();
+//    }
 }

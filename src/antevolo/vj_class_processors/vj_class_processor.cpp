@@ -12,10 +12,11 @@ namespace antevolo {
                                                 unique_cdr3s_,
                                                 hg_component,
                                                 component_id);
+        auto clone_by_read_constructor = GetCloneByReadConstructor();
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
                 new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
-                                                 clone_by_read_constructor_,
+                                                 clone_by_read_constructor,
                                                  hamming_graph_info,
                                                  current_fake_clone_index_));
         auto tree = forest_calculator->Process();
@@ -40,11 +41,14 @@ namespace antevolo {
             cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
-    vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents() {
+    std::vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents() {
         CreateUniqueCDR3Map();
         std::string cdrs_fasta = WriteUniqueCDR3InFasta();
         std::string graph_fname = GetGraphFname();
-        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
+        auto chain = BaseGeneClassProcessor::clone_set_ptr_->operator[](
+                *decomposition_class_.cbegin()).ChainType().Chain();
+        size_t tau = config_.algorithm_params.GetNumMismatchesByChainType(chain);
+        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname, tau);
     }
 
 

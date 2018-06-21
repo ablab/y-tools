@@ -114,6 +114,22 @@ namespace antevolo {
         {
             bool eq = true;
             size_t al_length = length(gene_j_alignment1);
+            if (al_length - j_gene_cdr3_end_view_pos1 != length(gene_j_alignment2) - j_gene_cdr3_end_view_pos2) {
+                std::cout << al_length << " " << j_gene_cdr3_end_view_pos1 << " "
+                          << length(gene_j_alignment2) << " " << j_gene_cdr3_end_view_pos2 << std::endl;
+                std::cout << "1: " << clone1.VGene().name() << " " << clone1.JGene().name() << ", 2: "
+                          << clone2.VGene().name() << " " << clone2.JGene().name() << std::endl;
+                std::cout << v_alignment1 << std::endl
+                          << gene_v_alignment1 << std::endl << "+++++++++++++++++" << std::endl;
+                std::cout << j_alignment1 << std::endl
+                          << gene_j_alignment1 << std::endl << "=================" << std::endl;
+
+                std::cout << v_alignment2 << std::endl
+                          << gene_v_alignment2 << std::endl << "+++++++++++++++++" << std::endl;
+                std::cout << j_alignment2 << std::endl
+                          << gene_j_alignment2 << std::endl << "=================" << std::endl
+                        << "*********************************" << std::endl;
+            }
             VERIFY(al_length - j_gene_cdr3_end_view_pos1 == length(gene_j_alignment2) - j_gene_cdr3_end_view_pos2);
             for (size_t i = 1; i < al_length - j_gene_cdr3_end_view_pos1; ++i) {
                 if (gene_j_alignment1[i + j_gene_cdr3_end_view_pos1] !=

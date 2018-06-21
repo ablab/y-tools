@@ -44,24 +44,24 @@ namespace antevolo {
             size_t thread_id = omp_get_thread_num();
             auto vj_class = gene_class_decomposition.GetClass(i);
 //            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
-            auto vj_class_processor = GeneCLassProcessorPtr(
+            auto v_class_processor = GeneCLassProcessorPtr(
                     new VClassProcessor(clone_sets[thread_id],
                                          vj_class,
                                          config_,
-                                         clone_by_read_constructor_,
+                                         gene_db_info_,
                                          fake_clone_indices[thread_id]));
-            auto connected_components = vj_class_processor->ComputeConnectedComponents();
+            auto connected_components = v_class_processor->ComputeConnectedComponents();
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree(clone_sets[thread_id]);
                 if (config_.algorithm_params.model) {
-                    tree = vj_class_processor->ProcessComponent(
+                    tree = v_class_processor->ProcessComponent(
                             connected_components[component_index],
                             component_index, edge_weight_calculator_);
                 } else {
-                    tree = vj_class_processor->ProcessComponent(
+                    tree = v_class_processor->ProcessComponent(
                             connected_components[component_index],
                             component_index, edge_weight_calculator_);
-//                    tree = vj_class_processor.ProcessComponentWithKruskal(
+//                    tree = v_class_processor.ProcessComponentWithKruskal(
 //                            connected_components[component_index],
 //                            component_index);
                 }
@@ -71,8 +71,8 @@ namespace antevolo {
                     //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
 //                }
             }
-            fake_clone_indices[thread_id] = vj_class_processor->GetCurrentFakeCloneIndex();
-            reconstructed[thread_id] += vj_class_processor->GetNumberOfReconstructedClones();
+            fake_clone_indices[thread_id] = v_class_processor->GetCurrentFakeCloneIndex();
+            reconstructed[thread_id] += v_class_processor->GetNumberOfReconstructedClones();
 
         }
         size_t total_reconstructed = 0;

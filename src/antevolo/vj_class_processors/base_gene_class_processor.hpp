@@ -5,16 +5,16 @@
 #include <antevolo_config.hpp>
 #include "cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.hpp"
 #include <shm_model_utils/shm_model_edge_weight_calculator.hpp>
+#include <gene_db_info.hpp>
 
 namespace antevolo {
     class BaseGeneClassProcessor {
     protected:
         CloneSetWithFakesPtr clone_set_ptr_;
 
-        const core::DecompositionClass& decomposition_class_;
-        const AntEvoloConfig& config_;
-        size_t num_mismatches_;
-        const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
+        const core::DecompositionClass &decomposition_class_;
+        const AntEvoloConfig &config_;
+        const GeneDbInfo& gene_db_info_;
         size_t current_fake_clone_index_;
         size_t reconstructed_;
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
@@ -27,38 +27,52 @@ namespace antevolo {
         SparseGraphPtr sparse_cdr_graph_;
         GraphComponentMap graph_component_map_;
 
+
         void Clear();
+
         std::string GetFastaFname();
+
         virtual EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
-                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
+                                                             const ShmModelEdgeWeightCalculator &edge_weight_calculator);
+
         virtual void CreateUniqueCDR3Map() = 0;
+
         std::string WriteUniqueCDR3InFasta();
+
         std::string GetGraphFname();
-        std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
+
+        std::vector<SparseGraphPtr>
+        ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph, size_t tau);
+
+
+        AnnotatedCloneByReadConstructor GetCloneByReadConstructor();
+
+        AnnotatedCloneByReadConstructor GetCloneByReadConstructor(std::string representative_name);
 
     public:
 
         BaseGeneClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
-                               const core::DecompositionClass& decomposition_class,
-                               const AntEvoloConfig& config,
-                               const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                               const core::DecompositionClass &decomposition_class,
+                               const AntEvoloConfig &config,
+                               const GeneDbInfo& gene_db_info,
                                size_t current_fake_clone_index) :
                 clone_set_ptr_(clone_set_ptr),
                 decomposition_class_(decomposition_class),
                 config_(config),
-                num_mismatches_(config.algorithm_params.similar_cdr3s_params.num_mismatches),
-                clone_by_read_constructor_(clone_by_read_constructor),
+                gene_db_info_(gene_db_info),
                 current_fake_clone_index_(current_fake_clone_index),
-                reconstructed_(0) { }
-        virtual vector<SparseGraphPtr> ComputeConnectedComponents() = 0;
+                reconstructed_(0) {}
+
+        virtual std::vector<SparseGraphPtr> ComputeConnectedComponents() = 0;
+
         virtual EvolutionaryTree ProcessComponent(SparseGraphPtr hg_component, size_t component_id,
-                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
+                                                  const ShmModelEdgeWeightCalculator &edge_weight_calculator);
 
         size_t GetCurrentFakeCloneIndex() const { return current_fake_clone_index_; };
+
         size_t GetNumberOfReconstructedClones() const { return reconstructed_; };
 
-
-        virtual ~BaseGeneClassProcessor() { }
+        virtual ~BaseGeneClassProcessor() {}
     };
 
     typedef std::shared_ptr<BaseGeneClassProcessor> GeneCLassProcessorPtr;

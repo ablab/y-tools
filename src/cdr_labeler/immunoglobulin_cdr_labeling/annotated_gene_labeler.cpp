@@ -12,7 +12,7 @@ namespace cdr_labeler {
         std::string v_gene_annotation = (search_params_.domain_system == CDRLabelerConfig::CDRsParams::
         AnnotatedSearchParams::DomainSystem::IMGT_Domain) ?
                                         v_annotation_params.imgt_v_annotation : v_annotation_params.kabat_v_annotation;
-        INFO("Reading V annotation from " << v_gene_annotation);
+        TRACE("Reading V annotation from " << v_gene_annotation);
         VERIFY_MSG(path::check_existence(v_gene_annotation), "File with V gene annotation " << v_gene_annotation <<
                                                              " does not exist");
         std::ifstream ifhandler(v_gene_annotation);
@@ -32,7 +32,7 @@ namespace cdr_labeler {
             v_annotations_.push_back(v_annotation);
             v_name_index_map_[v_annotation.name] = v_annotations_.size() - 1;
         }
-        //INFO(v_annotations_.size() << " V annotations were extracted from " << v_gene_annotation);
+        //TRACE(v_annotations_.size() << " V annotations were extracted from " << v_gene_annotation);
     }
 
     CDRLabeling AnnotatedVGeneCDRLabeler::ComputeLabeling(const germline_utils::ImmuneGene &immune_gene) {
@@ -50,7 +50,7 @@ namespace cdr_labeler {
     void AnnotatedJGeneCDRLabeler::Initialize() {
         auto j_params = search_params_.j_gene_annotation;
         std::string j_gene_annotation = j_params.imgt_j_annotation;
-        INFO("Reading J annotation from " << j_params.imgt_j_annotation);
+        TRACE("Reading J annotation from " << j_params.imgt_j_annotation);
         VERIFY_MSG(path::check_existence(j_gene_annotation), "File with J gene annotation " << j_gene_annotation <<
                                                              " does not exist");
         std::ifstream ifhandler(j_gene_annotation);
@@ -66,7 +66,7 @@ namespace cdr_labeler {
             j_annotations_.push_back(j_annotation);
             j_name_index_map_[j_annotation.name] = j_annotations_.size() - 1;
         }
-        //INFO(j_annotations_.size() << " J annotations were extracted from " << j_gene_annotation);
+        //TRACE(j_annotations_.size() << " J annotations were extracted from " << j_gene_annotation);
     }
 
     CDRLabeling AnnotatedJGeneCDRLabeler::ComputeLabeling(const germline_utils::ImmuneGene &immune_gene) {

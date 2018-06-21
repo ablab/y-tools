@@ -38,7 +38,7 @@ namespace germline_utils {
             ImmuneGene immune_gene(gene_type_, read_headers[i], read_seqs[i], i);
             AddImmuneGene(immune_gene);
         }
-        INFO(read_headers.size() << " records were extracted from " << filename);
+        TRACE(read_headers.size() << " records were extracted from " << filename);
         return read_headers.size();
     }
 
@@ -54,6 +54,10 @@ namespace germline_utils {
     }
 
     ImmuneGene& ImmuneGeneDatabase::GetImmuneGeneByIndex(size_t index) {
+        VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
+        return immune_genes_.at(index);
+    }
+    const ImmuneGene& ImmuneGeneDatabase::GetImmuneGeneByIndex(size_t index) const {
         VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
         return immune_genes_.at(index);
     }

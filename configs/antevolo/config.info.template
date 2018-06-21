@@ -6,6 +6,7 @@ input_params {
     shm_kmer_model_igh data/shm_model/NoKNeighbours_IGH.csv
     shm_kmer_model_igk data/shm_model/NoKNeighbours_IGK.csv
     shm_kmer_model_igl data/shm_model/NoKNeighbours_IGL.csv
+    reannotator_germline_dir data/germline/human/IG_antevolo/reannotator_germlines
 }
 
 output_params {
@@ -32,7 +33,9 @@ algorithm_params {
     model 0
 
     similar_cdr3s_params {
-        num_mismatches   3
+        num_mismatches_igh   6
+        num_mismatches_igk   3
+        num_mismatches_igl   3
         num_indels       0
     }
 

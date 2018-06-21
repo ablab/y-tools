@@ -13,6 +13,7 @@ namespace antevolo {
         const UniqueCDR3IndexMap& cdr3_to_indices_vector_map_;
         const CDR3ToIndexMap& cdr3_to_old_index_map_;
         const std::vector<std::string>& unique_cdr3s_;
+        std::string representative_name_;
         SparseGraphPtr hg_component_;
         size_t component_id_;
 
@@ -39,6 +40,13 @@ namespace antevolo {
         SparseGraph::EdgesIterator GetSimilarCDR3sBeginByOldIndex(size_t old_index);
         SparseGraph::EdgesIterator GetSimilarCDR3sEndByOldIndex(size_t old_index);
         boost::unordered_set<size_t> GetAllClones();
+        void SetRepresentativeName(std::string representative_name) {
+            representative_name_ = representative_name;
+        }
+        std::string GetRepresentativeName() {
+            return representative_name_;
+        }
+        size_t GetFirstClone();
     };
 
 }

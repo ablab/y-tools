@@ -5,14 +5,16 @@
 #include "antevolo_config.hpp"
 #include "clone_set_with_fakes.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
+#include "gene_db_info.hpp"
 
 namespace antevolo {
     class AntEvoloProcessor {
         const AntEvoloConfig& config_;
         annotation_utils::CDRAnnotatedCloneSet& clone_set_;
         CloneSetWithFakesPtr final_clone_set_with_fakes_;
-        const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
+        const GeneDbInfo& gene_db_info_;
         const size_t total_number_of_reads_;
+
         const ShmModelEdgeWeightCalculator& edge_weight_calculator_;
 
         std::vector<EvolutionaryTreeStorage> thread_tree_storages_;
@@ -22,12 +24,12 @@ namespace antevolo {
     public:
         AntEvoloProcessor(const AntEvoloConfig& config,
                           annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                          const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                          const GeneDbInfo& gene_db_info,
                           size_t total_number_of_reads,
                           const ShmModelEdgeWeightCalculator& edge_weight_calculator) :
                 config_(config),
                 clone_set_(clone_set),
-                clone_by_read_constructor_(clone_by_read_constructor),
+                gene_db_info_(gene_db_info),
                 total_number_of_reads_(total_number_of_reads),
                 edge_weight_calculator_(edge_weight_calculator){
 

@@ -120,7 +120,7 @@ namespace germline_utils {
                     continue;
                 AddRecordToFileMap(tmp);
             }
-            INFO(gene_type_fname_map_.size() << " germline filenames were extracted from " << config_fname);
+            TRACE(gene_type_fname_map_.size() << " germline filenames were extracted from " << config_fname);
             fhandler.close();
         }
 
@@ -154,6 +154,7 @@ namespace germline_utils {
     void GermlineDbGenerator::GenerateGeneFnames() {
         using namespace germline_utils;
         std::string germline_db = path::append_path(germ_params_.germline_dir, germ_params_.organism);
+        TRACE(germline_db);
         chain_types_ = LociParam::ConvertIntoChainTypes(germ_params_.loci);
         GermlineFilesConfig germline_files_config(germ_input_.germline_filenames_config);
         ChainDirectoryParam chain_dir_param(germ_input_);
@@ -173,17 +174,33 @@ namespace germline_utils {
                                                                 ImmuneGeneType(*it, SegmentType::JoinSegment),
                                                                 germ_params_.pseudogenes)));
         }
-        INFO(v_genes_fnames_.size() << " V gene segment files will be used for DB: ");
+        TRACE(v_genes_fnames_.size() << " V gene segment files will be used for DB: ");
         for(size_t i = 0; i < v_genes_fnames_.size(); i++)
-            INFO(chain_types_[i] << ": " << v_genes_fnames_[i]);
+            TRACE(chain_types_[i] << ": " << v_genes_fnames_[i]);
 
-        INFO(d_genes_fnames_.size() << " D gene segment files will be used for DB: ");
+        TRACE(d_genes_fnames_.size() << " D gene segment files will be used for DB: ");
         for(size_t i = 0; i < d_genes_fnames_.size(); i++)
-            INFO(chain_types_[i] << ": " << d_genes_fnames_[i]);
+            TRACE(chain_types_[i] << ": " << d_genes_fnames_[i]);
 
-        INFO(j_genes_fnames_.size() << " J gene segment files will be used for DB: ");
+        TRACE(j_genes_fnames_.size() << " J gene segment files will be used for DB: ");
         for(size_t i = 0; i < j_genes_fnames_.size(); i++)
-            INFO(chain_types_[i] << ": " << j_genes_fnames_[i]);
+            TRACE(chain_types_[i] << ": " << j_genes_fnames_[i]);
+    }
+
+    void GermlineDbGenerator::GenerateGeneFnames(std::string representative_name) {
+        GenerateGeneFnames();
+        v_genes_fnames_.clear();
+        using namespace germline_utils;
+        std::string germline_db = path::append_path(germ_params_.germline_dir, germ_params_.organism);
+        TRACE(germline_db);
+        chain_types_ = LociParam::ConvertIntoChainTypes(germ_params_.loci);
+        GermlineFilesConfig germline_files_config(germ_input_.germline_filenames_config);
+        ChainDirectoryParam chain_dir_param(germ_input_);
+        for(auto it = chain_types_.begin(); it != chain_types_.end(); it++) {
+            std::string lymph_dir = path::append_path(germline_db, chain_dir_param.GetDirByChainType(*it));
+            std::string representatives_dir  = path::append_path(lymph_dir, "reannotator_germlines");
+            v_genes_fnames_.push_back(path::append_path(representatives_dir, representative_name)+".fa");
+        }
     }
 
     germline_utils::CustomGeneDatabase GermlineDbGenerator::GenerateVariableDb() {

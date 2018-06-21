@@ -45,5 +45,10 @@ namespace antevolo {
         }
         return vertices_nums;
     }
+    size_t CDR3HammingGraphComponentInfo::GetFirstClone() {
+        // TODO: REMOVE THIS SHIT-ASYMPTOTIC CODE ASAP
+        size_t old_index = GetOldIndexByNewIndex(0);
+        return GetClonesByOldIndex(old_index).front();
+    }
 
 }
