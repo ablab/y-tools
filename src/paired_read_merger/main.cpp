@@ -3,8 +3,8 @@
 
 #include "logger/log_writers.hpp"
 
-merger_setting parse_settings(int argc, char *argv[]) {
-    merger_setting setting;
+SequenceMerger::merger_setting parse_settings(int argc, char *argv[]) {
+    SequenceMerger::merger_setting setting;
     std::string min_overlap_str = "--min-overlap=";
     std::string max_mismatch_str = "--max-mismatch=";
     std::string simulated_mode_str = "--simulated-mode";
@@ -26,7 +26,7 @@ merger_setting parse_settings(int argc, char *argv[]) {
     return setting;
 }
 
-void create_console_logger(std::string log_filename) {
+void create_console_logger(const std::string& log_filename) {
     using namespace logging;
     logger *lg = create_logger(path::FileExists(log_filename) ? log_filename : "");
     lg->add_writer(std::make_shared<console_writer>());
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
             argv[2]).Read();
     INFO(paired_reads.size() << " paired reads were read from " << argv[1] <<
             " and " << argv[2]);
-    std::vector<FastqRead> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
+    std::vector<FastqRead> merged_reads = SequenceMerger::PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
     INFO(merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged");
     FastqWriter(std::string(argv[3])).Write(merged_reads);
     INFO("Merged reads were written to " << std::string(argv[3]));
