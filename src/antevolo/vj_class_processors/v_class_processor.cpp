@@ -1,5 +1,6 @@
 #include "v_class_processor.hpp"
 #include <cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.hpp>
+#include <cdr3_hamming_graph_connected_components_processors/homoplasy_detecting_cdr3_hg_cc_processor.hpp>
 #include <reannotation/read_family_aligner.hpp>
 #include <clone_set_decomposers/clone_set_decomposer.hpp>
 
@@ -180,7 +181,8 @@ namespace antevolo {
 
         auto clone_by_read_constructor = GetCloneByReadConstructor(hamming_graph_info.GetRepresentativeName());
         std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
-                new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
+                new Homoplasy_Detecting_CDR3_HG_CC_Processor(clone_set_ptr_,
+//                new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_.algorithm_params,
                                                  clone_by_read_constructor,
                                                  hamming_graph_info,

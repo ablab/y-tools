@@ -65,7 +65,8 @@ add_library(antevolo_library STATIC
         antevolo_processor.cpp
         antevolo_launch.cpp
         evolutionary_graph_utils/one_child_fake_clones_filterer.cpp
-		vj_class_processors/v_class_processor.cpp)
+		vj_class_processors/v_class_processor.cpp
+		cdr3_hamming_graph_connected_components_processors/homoplasy_detecting_cdr3_hg_cc_processor.cpp)
 
 target_link_libraries(antevolo_library
         vj_finder_library

@@ -7,6 +7,7 @@
 
 namespace antevolo {
     class Edmonds_CDR3_HG_CC_Processor : public Base_CDR3_HG_CC_Processor {
+    protected:
         boost::unordered_map<size_t, EvolutionaryEdgePtr> shorthest_directed_edge_;
         boost::unordered_set<size_t> vertices_nums_;
         const ShmModelEdgeWeightCalculator& edge_weight_calculator_;
