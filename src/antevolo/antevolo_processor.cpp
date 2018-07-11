@@ -1,6 +1,7 @@
 #include <logger/logger.hpp>
 #include <vj_class_processors/vj_class_processor.hpp>
 #include <vj_class_processors/v_class_processor.hpp>
+#include <clone_set_decomposers/v_clone_set_decomposer.hpp>
 #include "antevolo_processor.hpp"
 
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
@@ -21,7 +22,7 @@ namespace antevolo {
     EvolutionaryTreeStorage AntEvoloProcessor::Process() {
 
 //        VJCloneSetDecomposer clone_set_decomposer(clone_set_); // storage for reconstructed fake vertices
-        CloneSetDecomposerPtr clone_set_decomposer(new VJCloneSetDecomposer(clone_set_)); // storage for reconstructed fake vertices
+        CloneSetDecomposerPtr clone_set_decomposer(new VCloneSetDecomposer(clone_set_)); // storage for reconstructed fake vertices
 //        auto vj_decomposition = clone_set_decomposer.CreateDecomposition();
         auto gene_class_decomposition = clone_set_decomposer->CreateDecomposition();
 //        INFO("VJ decomposition containing " << gene_class_decomposition.Size() << " classes was created.");
