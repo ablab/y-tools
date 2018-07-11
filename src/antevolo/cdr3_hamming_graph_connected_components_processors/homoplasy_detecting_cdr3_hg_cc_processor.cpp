@@ -10,8 +10,6 @@ namespace antevolo {
         boost::unordered_set<std::pair<size_t, size_t>> all_edges;
         boost::unordered_set<std::pair<size_t, size_t>> edges_to_be_removed;
 
-        EvolutionaryTree tree(clone_set_ptr_);
-
         vertices_nums_ = boost::unordered_set<size_t>(hamming_graph_info_.GetAllClones());
         for (auto it = vertices_nums_.begin(); it != vertices_nums_.end(); ) {
             if (clone_set[*it].AnnotationIsNotValid()) {
@@ -25,9 +23,17 @@ namespace antevolo {
         SetShortestDirectedParentEdges();
         auto input_edges = PrepareEdgeVector();
         auto branching_edges = EdmondsProcessor().process_edge_list(input_edges);
+        EvolutionaryTree tree(clone_set_ptr_);
         SetEdges(tree, branching_edges);
-        for (auto it = tree.begin(); it != tree.end(); ++it) {
-            auto& edge = *it;
+        ReconstructMissingVertices(vertices_nums_, tree);
+        for (auto we : branching_edges) {
+            if (we.src_ == size_t(-1)) {
+                continue;
+            }
+            auto edge = edge_constructor->ConstructEdge(clone_set[we.src_],
+                                                        clone_set[we.dst_],
+                                                        we.src_,
+                                                        we.dst_);
             if (edge->IsUndirected()) {
                 graph_in[edge->DstNum()].push_back({edge->SrcNum(), edge->Length()});
                 graph_out[edge->SrcNum()].push_back({edge->DstNum(), edge->Length()});
@@ -57,7 +63,8 @@ namespace antevolo {
                                       edges_in.empty() ? EDGE_LENGTH_THRESHOLD
                                                        : edges_in.front().second);
             for (auto p : edges) {
-                if (static_cast<double>(p.second) >= static_cast<double>(min_len) * EDGE_COEF) {
+                if (static_cast<double>(p.second) >= static_cast<double>(min_len) * EDGE_COEF ||
+                    static_cast<double>(p.second) > static_cast<double>(min_len)) {
                     break;
                 }
                 edges_in.push_back(p);
@@ -111,14 +118,8 @@ namespace antevolo {
                                                             clone_set[p.second],
                                                             p.first,
                                                             p.second);
-//            std::cout << p.first << " " << p.second << std::endl;
-//            std::cout << edge_ptr->SrcNum() << " " << edge_ptr->DstNum() << "\nh\n" << std::endl;
             res_tree.AddEdge(edge_ptr->DstNum(), edge_ptr);
         }
-//        for (auto it = res_tree.cbegin(); it != res_tree.cend(); ++it) {
-//            auto edge_ptr = *it;
-//            std::cout << edge_ptr->SrcNum() << " " << edge_ptr->DstNum() << "\nh\n" << std::endl;
-//        }
         return res_tree;
     }
 
